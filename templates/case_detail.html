@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case {{ case.case_id }} &mdash; BOUNDARY</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; AMD and Evolus were integrated in separate recorded tests. Synthetic data; no real payments.</p>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Cases</a>
+      <a href="/evidence">Evidence &amp; Performance</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Case <span class="mono">{{ case.case_id }}</span></h1>
+    <p class="muted">{{ label }}</p>
+
+    <div class="notice notice--warn">
+      <strong>Authority: NONE at every stage.</strong> The classifier, guard, and any journal
+      record below are a <em>simulation</em> &mdash; no real payment, balance transfer, or human
+      authorization occurs. Deterministic logic and model output never grant execution authority.
+    </div>
+
+    <h2>Source facts</h2>
+    <dl class="facts">
+      <div><dt>Invoice</dt><dd>{{ case.invoice.invoice_id }} (supplier {{ case.invoice.supplier_id }})</dd></div>
+      <div><dt>Invoice stated total</dt><dd>{{ case.invoice.stated_total_cents | cents }}</dd></div>
+      <div><dt>Invoice computed total</dt><dd>{{ case.invoice.computed_total_cents | cents }}</dd></div>
+      <div><dt>PO lookup state</dt><dd>{{ case.po_lookup.state }}</dd></div>
+      {% if case.po_lookup.state == "FOUND" %}
+      <div><dt>Purchase order</dt><dd>{{ case.po_lookup.purchase_order.po_id }} ({{ case.po_lookup.purchase_order.computed_total_cents | cents }})</dd></div>
+      {% endif %}
+      <div><dt>Supplier lookup state</dt><dd>{{ case.supplier_lookup.state.value }}</dd></div>
+      {% if proposal.calculations.discrepancy_cents is not none %}
+      <div><dt>Discrepancy</dt><dd>{{ proposal.calculations.discrepancy_cents | cents }}</dd></div>
+      {% endif %}
+    </dl>
+
+    <h2>Decision &amp; authority trace</h2>
+    <ol class="trace">
+
+      <li class="trace-step trace-step--info">
+        <p class="step-title">Classifier proposal</p>
+        <p>Exact-match eligible: <span class="mono">{{ proposal.exact_match_eligible }}</span></p>
+        {% if proposal.reason_codes %}
+          <p>Reason codes:
+            {% for code in proposal.reason_codes %}
+              <span class="reason-code">{{ code.value | replace("_", " ") }}</span>
+            {% endfor %}
+          </p>
+        {% else %}
+          <p class="muted">No reason codes.</p>
+        {% endif %}
+        <p class="step-note step-note--authority">Proposal only &mdash; not an action. execution_authority = NONE.</p>
+      </li>
+
+      <li class="trace-step {{ 'trace-step--info' if guard.action.value == 'APPROVE' else 'trace-step--hold' }}">
+        <p class="step-title">Guard decision</p>
+        <p>Action: <span class="mono">{{ guard.action.value }}</span></p>
+        <p class="step-note step-note--authority">Deterministic permission check &mdash; a simulated decision, not a payment or human authorization.</p>
+      </li>
+
+      <li class="trace-step {{ 'trace-step--info' if record else 'trace-step--hold' }}">
+        <p class="step-title">Simulated journal action</p>
+        {% if state == "uninitialized" %}
+          <p class="muted">Journal uninitialized &mdash; no committed action can be read.</p>
+        {% elif state == "unavailable" %}
+          <p class="muted">Journal unavailable &mdash; no committed action can be read.</p>
+        {% elif record %}
+          <p>Action: <span class="mono">{{ record.action }}</span> &mdash; {{ record.amount_cents | cents }} &mdash; committed {{ record.committed_at | ts }}</p>
+          <p class="step-note step-note--authority">Simulated approval record &mdash; no real financial movement.</p>
+        {% else %}
+          <p>No committed action (held or not executed).</p>
+        {% endif %}
+      </li>
+
+      <li class="trace-step {{ 'trace-step--verified' if verification and verification.outcome.value == 'VERIFIED' else ('trace-step--risk' if verification and verification.outcome.value in ['RECORD_MISMATCH','RECEIPT_MISMATCH','UNAUTHORIZED_RECORD'] else 'trace-step--hold') }}">
+        <p class="step-title">Independent verification</p>
+        {% if state == "ready" and verification %}
+          <p>Outcome: <span class="mono">{{ verification.outcome.value }}</span></p>
+          {% if verification.reasons %}
+            <p class="muted">Reasons: {{ verification.reasons | join("; ") }}</p>
+          {% endif %}
+          {% if verification.outcome.value == "VERIFIED" %}
+            <p class="step-note">VERIFIED means the simulated journal record matches the source case and
+               execution constraints &mdash; not invoice authenticity, payment authorization, or real-world settlement.</p>
+          {% elif verification.outcome.value == "NOT_ELIGIBLE" %}
+            <p class="step-note">NOT_ELIGIBLE means this case is ineligible for the simulated exact-match
+               approval path &mdash; not an independent certification of the held case.</p>
+          {% endif %}
+        {% else %}
+          <p class="muted">Verification unavailable (journal {{ state }}).</p>
+        {% endif %}
+      </li>
+
+    </ol>
+
+    <h2>Selective Intelligence &mdash; B3 Routing</h2>
+    {% if routing and routing.model_calls > 0 %}
+    <div class="notice notice--info">
+      <strong>OFFLINE SIMULATION &mdash; NO LIVE AMD REQUEST.</strong> The model output below is
+      produced by a local mock adapter exercising the accepted validator; no external service is contacted.
+    </div>
+    {% else %}
+    <div class="notice notice--info">
+      <strong>No simulated model response generated.</strong> This path resolved deterministically
+      (or held on trusted lookup state) with zero model invocations &mdash; no local mock adapter was exercised.
+    </div>
+    {% endif %}
+
+    {% if routing %}
+    <ol class="trace">
+      <li class="trace-step {{ 'trace-step--hold' if routing.route == 'HELD' else 'trace-step--info' }}">
+        <p class="step-title">Route:
+          {% if routing.route == 'HELD' %}<span class="pill pill--hold">{{ routing.route }}</span>
+          {% else %}<span class="pill pill--info">{{ routing.route }}</span>{% endif %}
+        </p>
+        <p>Offline adapter invocations: <span class="mono">{{ routing.model_calls }}</span></p>
+        {% if routing.advisory_outcome %}
+          <p>Advisory outcome: <span class="mono">{{ routing.advisory_outcome }}</span></p>
+          <p>Source-consistent: <span class="mono">{{ routing.advisory_consistent }}</span></p>
+        {% endif %}
+        <p>execution_authority: <span class="mono">{{ routing.execution_authority }}</span></p>
+        {% if routing.interpretation %}
+          <p class="muted">Advisory interpretation: supplier <span class="mono">{{ routing.interpretation.supplier_id }}</span>,
+             invoice <span class="mono">{{ routing.interpretation.invoice_id }}</span>,
+             amount {{ routing.interpretation.amount_cents | cents }},
+             discrepancy {{ routing.interpretation.discrepancy_cents | cents }},
+             confidence {{ routing.interpretation.confidence }}.</p>
+        {% endif %}
+        <p class="step-note step-note--authority">Advisory only &mdash; this does not change the B1 guard or journal decision above.</p>
+      </li>
+      {% if authority_claim %}
+      <li class="trace-step trace-step--risk">
+        <p class="step-title">Authority-claim rejection <span class="pill pill--risk">adversarial example</span></p>
+        <p>Injected model output asserted an authority key (&ldquo;approve&rdquo;).</p>
+        <p>Advisory outcome: <span class="mono">{{ authority_claim.advisory_outcome }}</span></p>
+        <p>execution_authority: <span class="mono">{{ authority_claim.execution_authority }}</span></p>
+        <p class="step-note step-note--authority">Rejected by the accepted validator &mdash; authority remains NONE; no journal action.</p>
+      </li>
+      {% endif %}
+    </ol>
+    {% endif %}
+
+    <p><a href="/">Back to cases</a></p>
+  </main>
+
+  <footer class="site-footer">
+    Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
+    Live AMD and Evolus results are recorded separately (see Evidence &amp; Performance).
+    All financial records are fictional.
+  </footer>
+</body>
+</html>

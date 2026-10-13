@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evidence &amp; Performance &mdash; BOUNDARY</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; AMD and Evolus were integrated in separate recorded tests. Synthetic data; no real payments.</p>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Cases</a>
+      <a href="/evidence" aria-current="page">Evidence &amp; Performance</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Evidence &amp; Performance</h1>
+    <p class="muted">Independently reviewed results from recorded live integration tests and offline
+       benchmarks. This page is read-only and performs no inference or extraction.</p>
+
+    <div class="notice notice--warn">
+      <strong>Authority boundary.</strong> No AI authorization, no payments. Human authorization is
+      simulated only. Everything below is advisory and unverified evidence &mdash; none of it grants
+      execution authority.
+    </div>
+
+    <section>
+      <h2>AMD Inference <span class="pill pill--info">{{ amd.provenance }}</span></h2>
+      <p class="muted">Recorded {{ amd.recorded_at }}. <strong>RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Scenario</th>
+            <th scope="col">Route</th>
+            <th scope="col">AMD requests</th>
+            <th scope="col">Tokens (prompt / completion / total)</th>
+            <th scope="col">Adapter latency</th>
+            <th scope="col">Advisory</th>
+            <th scope="col">Authority</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in amd.scenarios %}
+          <tr>
+            <td>{{ s.name }}</td>
+            <td class="mono">{{ s.route }}</td>
+            <td class="mono">{{ s.amd_requests }}</td>
+            <td class="mono">{% if s.tokens %}{{ s.tokens.prompt }} / {{ s.tokens.completion }} / {{ s.tokens.total }}{% else %}&mdash;{% endif %}</td>
+            <td class="mono">{% if s.latency_ms %}{{ s.latency_ms }} ms{% else %}&mdash;{% endif %}</td>
+            <td class="mono">{% if s.advisory %}{{ s.advisory }}{% if s.source_consistent %} (source-consistent){% endif %}{% else %}&mdash;{% endif %}</td>
+            <td class="mono">NONE</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="muted">Model: <span class="mono">{{ amd.model_id }}</span>. {{ amd.note }}</p>
+    </section>
+
+    <section>
+      <h2>Evolus Document Extraction <span class="pill pill--info">{{ evolus.provenance }}</span></h2>
+      <p class="muted">Recorded {{ evolus.recorded_at }}. <strong>RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
+      <dl class="facts">
+        <div><dt>Document type</dt><dd>{{ evolus.document_type }}</dd></div>
+        <div><dt>Invoice</dt><dd class="mono">{{ evolus.invoice_id }}</dd></div>
+        <div><dt>Supplier</dt><dd class="mono">{{ evolus.supplier_id }}</dd></div>
+        <div><dt>PO reference</dt><dd class="mono">{{ evolus.po_reference }}</dd></div>
+        <div><dt>Stated total</dt><dd class="mono">{{ evolus.stated_total }}</dd></div>
+        <div><dt>Advisory analysis</dt><dd>{{ evolus.advisory_analysis }}</dd></div>
+        <div><dt>Evidence status</dt><dd>{{ evolus.evidence_status }}</dd></div>
+        <div><dt>Authority</dt><dd class="mono">{{ evolus.authority }}</dd></div>
+      </dl>
+      <p class="muted">{{ evolus.note }}</p>
+    </section>
+
+    <section>
+      <h2>Offline Routing Benchmark <span class="pill pill--info">{{ b51_observed.label }}</span></h2>
+      <dl class="facts">
+        <div><dt>Synthetic categories</dt><dd>{{ b51_observed.categories }}</dd></div>
+        <div><dt>Offline observations</dt><dd>{{ b51_observed.observations }}</dd></div>
+        <div><dt>Repetitions per category</dt><dd>{{ b51_observed.repetitions_per_category }}</dd></div>
+      </dl>
+      <p class="muted">{{ b51_observed.note }}</p>
+    </section>
+
+    <section>
+      <h2>LLM-First Comparison <span class="pill pill--risk">{{ b51.label }}</span></h2>
+      <dl class="facts">
+        <div><dt>Hypothetical call opportunities</dt><dd>{{ b51.categories }}</dd></div>
+        <div><dt>Call opportunities avoided</dt><dd>{{ b51.call_opportunities_avoided }} of {{ b51.categories }}</dd></div>
+      </dl>
+      <p class="muted">{{ b51.note }}</p>
+    </section>
+
+    <section>
+      <h2>Limitations</h2>
+      <ul>
+        <li>Three supervised AMD benchmark scenarios, but only one genuine AMD inference response (no averages or typical latency).</li>
+        <li>Synthetic cases only.</li>
+        <li>Timing categories are not directly comparable (nanosecond local runtime vs. millisecond adapter latency).</li>
+        <li>No measured financial savings (counterfactual call avoidance only).</li>
+        <li>No comprehensive security certification.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
+    Live AMD and Evolus results are recorded separately. All financial records are fictional.
+  </footer>
+</body>
+</html>

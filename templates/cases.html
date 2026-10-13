@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOUNDARY &mdash; Cases</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; AMD and Evolus were integrated in separate recorded tests. Synthetic data; no real payments.</p>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/" aria-current="page">Cases</a>
+      <a href="/evidence">Evidence &amp; Performance</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Cases</h1>
+    <p class="muted">Each case runs through the deterministic pipeline &mdash; classifier proposal, guard
+       decision, and (where permitted) a simulated journal approval, independently verified.
+       This interface is read-only.</p>
+
+    {% if state == "uninitialized" %}
+      <div class="notice notice--warn">
+        <strong>Journal uninitialized.</strong> Run the offline demo first:
+        <code class="mono">python -m boundary.demo --db boundary.db</code>, then reload.
+      </div>
+    {% elif state == "unavailable" %}
+      <div class="notice notice--warn">
+        <strong>Journal unavailable.</strong> The configured database exists but cannot be read.
+      </div>
+    {% elif rows %}
+      <ul class="case-list">
+        {% for row in rows %}
+        <li class="case-card">
+          <a href="/cases/{{ row.case.case_id }}">{{ row.case.case_id }}</a>
+          <p class="meta">
+            <span>{{ row.label }}</span>
+            {% if row.committed %}
+              <span class="pill pill--info">simulated approval committed</span>
+            {% else %}
+              <span class="pill pill--hold">held &mdash; no commit</span>
+            {% endif %}
+          </p>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No cases available.</p>
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">
+    Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
+    Live AMD and Evolus results are recorded separately (see Evidence &amp; Performance).
+    All financial records are fictional.
+  </footer>
+</body>
+</html>
