@@ -1,0 +1,42 @@
+# Version control and repo metadata — never in the image
+.git
+.gitignore
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Credentials and local configuration — never in the image
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Generated runtime data (local databases)
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Development artifacts, tests, and documentation not needed at runtime
+tests/
+*.md
+Procfile
+.python-version
+benchmark_results.json
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
