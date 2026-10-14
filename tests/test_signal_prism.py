@@ -117,3 +117,55 @@ def test_identifiers_escaped(tmp_path, monkeypatch):
     assert r.status_code == 200
     assert "&lt;script&gt;" in r.text
     assert "<script>alert" not in r.text
+
+
+def test_homepage_hero_metrics_present(tmp_path):
+    client = _client(tmp_path)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "66.7%" in r.text
+    assert "64.0%" in r.text
+    assert "AI-granted execution authority" in r.text
+    assert "NONE" in r.text
+
+
+def test_homepage_hero_principle_and_caveat(tmp_path):
+    client = _client(tmp_path)
+    r = client.get("/")
+    assert "Use intelligence only when intelligence is required" in r.text
+    assert "Use autonomy only when authority exists" in r.text
+    # Figures are labeled as a limited pilot, not universal or the 60-case study.
+    assert "S4E.5 DeepSeek synthetic pilot" in r.text
+    assert "60-case" in r.text
+    assert 'href="/evidence"' in r.text
+
+
+def test_homepage_process_strip_present(tmp_path):
+    client = _client(tmp_path)
+    r = client.get("/")
+    for stage in ("Classify", "Guard", "Journal", "Verify"):
+        assert stage in r.text
+    # Static CSS-only — no client-side JavaScript is introduced.
+    assert "<script" not in r.text
+
+
+def test_homepage_how_it_works(tmp_path):
+    client = _client(tmp_path)
+    r = client.get("/")
+    assert "Deterministic routing" in r.text
+    assert "Selective advisory inference" in r.text
+    assert "Independent verification" in r.text
+
+
+def test_homepage_hero_accessible(tmp_path):
+    client = _client(tmp_path)
+    r = client.get("/")
+    assert 'aria-label="Pipeline stages"' in r.text
+    assert 'class="hero-metrics"' in r.text
+    assert 'class="process-strip"' in r.text
+
+
+def test_homepage_metrics_derive_from_evidence():
+    from boundary.evidence import AMD_EVIDENCE
+    assert AMD_EVIDENCE["request_reduction"] == "66.7%"
+    assert AMD_EVIDENCE["token_reduction"] == "64.0%"

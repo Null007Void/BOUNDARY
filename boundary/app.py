@@ -123,7 +123,11 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
                     rows.append({"case": case, "label": label, "committed": record is not None})
             finally:
                 journal.close()
-        return templates.TemplateResponse(request, "cases.html", {"rows": rows, "state": state})
+        return templates.TemplateResponse(
+            request,
+            "cases.html",
+            {"rows": rows, "state": state, "amd": AMD_EVIDENCE},
+        )
 
     @app.get("/cases/{case_id}", response_class=HTMLResponse)
     def case_detail(request: Request, case_id: str):

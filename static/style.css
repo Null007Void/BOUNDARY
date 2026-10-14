@@ -268,6 +268,52 @@ h3 { font-size: 1rem; margin: 0 0 0.25rem; }
   border-top: 1px solid var(--border);
 }
 
+/* Homepage hero */
+.hero {
+  background: linear-gradient(180deg, var(--cobalt) 0%, var(--obsidian) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.5rem 1.25rem;
+  margin: 0 0 1.5rem;
+}
+.hero-title { font-size: 1.4rem; margin: 0 0 0.5rem; color: var(--text); }
+.hero-principle { font-style: italic; color: var(--cyan); margin: 0 0 1rem; }
+.hero-metrics {
+  list-style: none; margin: 0 0 0.75rem; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 1rem 1.5rem;
+}
+.metric { flex: 1 1 9rem; min-width: 9rem; }
+.metric-value {
+  display: block; font-family: var(--font-mono);
+  font-size: 1.6rem; font-weight: 700; color: var(--emerald);
+}
+.metric-value--none { color: var(--cyan); }
+.metric-label { display: block; color: var(--text-muted); font-size: 0.85rem; }
+.hero-caveat { font-size: 0.82rem; }
+
+/* How-it-works process strip */
+.how { margin: 0 0 1.5rem; }
+.process-strip {
+  list-style: none; margin: 0.75rem 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.process-step {
+  flex: 1 1 9rem;
+  background: var(--cobalt);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--cyan);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.75rem;
+}
+.process-num {
+  display: block; font-family: var(--font-mono);
+  font-size: 0.72rem; color: var(--text-muted);
+}
+.process-name { display: block; font-weight: 600; }
+.process-note { display: block; color: var(--text-muted); font-size: 0.82rem; }
+.how-list { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+.how-list li { margin: 0.35rem 0; }
+
 @media (max-width: 40rem) {
   .facts div { grid-template-columns: 1fr; gap: 0; }
   .facts dt { margin-top: 0.35rem; }

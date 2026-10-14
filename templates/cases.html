@@ -18,7 +18,42 @@
   </header>
 
   <main id="main">
-    <h1>Cases</h1>
+    <section class="hero">
+      <h1 class="hero-title">Deterministic-first governance for invoice exceptions</h1>
+      <p class="hero-principle">&ldquo;Use intelligence only when intelligence is required. Use autonomy only when authority exists.&rdquo;</p>
+      <ul class="hero-metrics">
+        <li class="metric">
+          <span class="metric-value">{{ amd.request_reduction }}</span>
+          <span class="metric-label">fewer inference requests</span>
+        </li>
+        <li class="metric">
+          <span class="metric-value">{{ amd.token_reduction }}</span>
+          <span class="metric-label">fewer tokens</span>
+        </li>
+        <li class="metric">
+          <span class="metric-value metric-value--none">NONE</span>
+          <span class="metric-label">AI-granted execution authority</span>
+        </li>
+      </ul>
+      <p class="hero-caveat muted">Recorded from the limited S4E.5 DeepSeek synthetic pilot &mdash; not a universal claim or the completed 60-case evaluation. <a href="/evidence">See evidence, provenance, and model-identity limitations</a>.</p>
+    </section>
+
+    <section class="how">
+      <h2>How BOUNDARY works</h2>
+      <ol class="process-strip" aria-label="Pipeline stages">
+        <li class="process-step"><span class="process-num">1</span><span class="process-name">Classify</span><span class="process-note">deterministic proposal</span></li>
+        <li class="process-step"><span class="process-num">2</span><span class="process-name">Guard</span><span class="process-note">permission check</span></li>
+        <li class="process-step"><span class="process-num">3</span><span class="process-name">Journal</span><span class="process-note">simulated record</span></li>
+        <li class="process-step"><span class="process-num">4</span><span class="process-name">Verify</span><span class="process-note">independent re-check</span></li>
+      </ol>
+      <ul class="how-list">
+        <li><strong>Deterministic routing</strong> &mdash; exact matches and held cases resolve with zero model calls.</li>
+        <li><strong>Selective advisory inference</strong> &mdash; a model is consulted only for genuinely ambiguous cases, and its output is advisory (<span class="mono">execution_authority = NONE</span>).</li>
+        <li><strong>Independent verification</strong> &mdash; every journal record is re-checked against the source case before it is trusted.</li>
+      </ul>
+    </section>
+
+    <h2>Cases</h2>
     <p class="muted">Each case runs through the deterministic pipeline &mdash; classifier proposal, guard
        decision, and (where permitted) a simulated journal approval, independently verified.
        This interface is read-only.</p>
