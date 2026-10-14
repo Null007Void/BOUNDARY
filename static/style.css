@@ -322,6 +322,24 @@ h3 { font-size: 1rem; margin: 0 0 0.25rem; }
   flex-wrap: wrap;
 }
 
+/* Experiment journey */
+.journey {
+  list-style: none; margin: 0.75rem 0 0; padding: 0;
+  display: grid; gap: 0.5rem;
+}
+.journey-step {
+  background: var(--cobalt);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cyan);
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  display: flex; gap: 0.75rem; align-items: baseline; flex-wrap: wrap;
+}
+.journey-route { font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem; }
+.journey-step--deterministic { border-left-color: var(--emerald); }
+.journey-step--inference { border-left-color: var(--cyan); }
+.journey-step--held { border-left-color: var(--amber); }
+
 .process-strip {
   list-style: none; margin: 0.75rem 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: 0.5rem;

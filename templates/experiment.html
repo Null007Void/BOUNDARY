@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experiment &mdash; BOUNDARY</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; AMD and Evolus were integrated in separate recorded tests. Synthetic data; no real payments.</p>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Cases</a>
+      <a href="/experiment" aria-current="page">Experiment</a>
+      <a href="/evidence">Evidence &amp; Performance</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Experiment</h1>
+    <p class="muted">How identical synthetic invoice opportunities behave under two models and two strategies. This is an evidence visualization &mdash; no live inference is performed.</p>
+
+    <div class="notice notice--warn">
+      <strong>Evidence visualization, not a live run.</strong> DeepSeek figures are recorded measurements from the limited October 13 pilot; Gemma&rsquo;s comparison is incomplete (a single smoke attempt returned malformed output). AI output is advisory only and never grants execution authority.
+    </div>
+
+    <section>
+      <h2>Two models &times; two strategies</h2>
+      <table class="data-table comparison">
+        <thead>
+          <tr>
+            <th scope="col">Strategy</th>
+            <th scope="col">DeepSeek-V4-Flash <span class="status-label status-label--measured">MEASURED</span></th>
+            <th scope="col">Gemma-4-31B-IT <span class="status-label status-label--incomplete">INCOMPLETE</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">LLM-first</th>
+            <td class="mono">{{ amd.strategy_a.requests }} requests &middot; {{ amd.strategy_a.tokens }} tokens</td>
+            <td class="muted">not completed</td>
+          </tr>
+          <tr>
+            <th scope="row">BOUNDARY deterministic-first</th>
+            <td class="mono">{{ amd.strategy_b.requests }} requests &middot; {{ amd.strategy_b.tokens }} tokens</td>
+            <td class="muted">not completed</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted">DeepSeek: {{ amd.request_reduction }} fewer requests and {{ amd.token_reduction }} fewer tokens for this pilot workload (recorded October 13). Endpoint-reported identity <span class="mono">{{ amd.endpoint_model_id }}</span> &mdash; classified <span class="mono">{{ amd.model_verified }}</span>. No per-request latency improvement is claimed.</p>
+    </section>
+
+    <section>
+      <h2>Routing journey <span class="status-label status-label--offline">ILLUSTRATIVE</span></h2>
+      <p class="muted">Three synthetic routing outcomes through the accepted pipeline. Per-case traces are on the linked pages.</p>
+      <ol class="journey">
+        <li class="journey-step journey-step--deterministic">
+          <span class="journey-route">DETERMINISTIC</span>
+          <span>Exact match &rarr; <strong>0 model calls</strong> &rarr; simulated approval &rarr; independently verified. <a href="/cases/CASE-1">CASE-1</a></span>
+        </li>
+        <li class="journey-step journey-step--inference">
+          <span class="journey-route">INFERENCE (advisory)</span>
+          <span>Discrepancy &rarr; <strong>1 model call</strong>, advisory only, <span class="mono">execution_authority = NONE</span>. <a href="/cases/CASE-2">CASE-2</a></span>
+        </li>
+        <li class="journey-step journey-step--held">
+          <span class="journey-route">HELD</span>
+          <span>Missing evidence &rarr; <strong>0 model calls</strong> &rarr; no commit. <a href="/cases/CASE-3">CASE-3</a></span>
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Provenance &amp; limitations</h2>
+      <ul>
+        <li>DeepSeek endpoint-reported identity is <span class="mono">{{ amd.model_verified }}</span>; the exact serving identifier was not independently confirmed.</li>
+        <li>Gemma-4-31B-IT: one smoke attempt returned <span class="mono">{{ gemma.outcome }}</span>; the two-model comparison is <strong>not completed</strong>.</li>
+        <li>The six offline routing categories are offline observations, not live AMD processing.</li>
+        <li>Evolus extraction and AMD inference were separate recorded tests, not one integrated transaction.</li>
+        <li>The 60-case held-out evaluation and the authenticated human-authorization gate are not completed/implemented; authorization is simulated only.</li>
+        <li>No latency, cost, or financial-savings figures are claimed from this pilot.</li>
+      </ul>
+      <p class="muted">Full detail: <a href="/evidence">Evidence &amp; Performance</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
+    Live AMD and Evolus results are recorded separately. All financial records are fictional.
+    <p>Source: <a href="https://github.com/Null007Void/BOUNDARY">github.com/Null007Void/BOUNDARY</a> (MIT licensed).</p>
+  </footer>
+</body>
+</html>

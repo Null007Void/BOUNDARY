@@ -190,3 +190,61 @@ def test_homepage_source_link(tmp_path):
     t = client.get("/").text
     assert "github.com/Null007Void/BOUNDARY" in t
     assert "MIT licensed" in t
+
+
+def test_experiment_page_renders(tmp_path):
+    client = _client(tmp_path)
+    assert client.get("/experiment").status_code == 200
+
+
+def test_experiment_two_model_comparison(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/experiment").text
+    # DeepSeek recorded: 6 vs 2 requests, 1314 vs 473 tokens.
+    assert "6 requests" in t
+    assert "1314" in t
+    assert "2 requests" in t
+    assert "473" in t
+    # Gemma incomplete: no fabricated measurements.
+    assert "not completed" in t
+    assert "MEASURED" in t
+    assert "INCOMPLETE" in t
+    # Identity limitation preserved.
+    assert "unverified_mismatch" in t
+    assert "self-dploy/DeepSeek-V4-Flash" in t
+
+
+def test_experiment_routing_journey(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/experiment").text
+    assert "DETERMINISTIC" in t
+    assert "INFERENCE" in t
+    assert "HELD" in t
+    assert "0 model calls" in t
+    assert "ILLUSTRATIVE" in t  # labeled illustrative, not fabricated event replay
+
+
+def test_experiment_links_and_readonly(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/experiment").text
+    assert 'href="/cases/CASE-1"' in t
+    assert 'href="/cases/CASE-2"' in t
+    assert 'href="/cases/CASE-3"' in t
+    assert 'href="/evidence"' in t
+    assert client.post("/experiment").status_code == 405
+
+
+def test_experiment_nav_link_present(tmp_path):
+    client = _client(tmp_path)
+    for path in ("/", "/evidence"):
+        assert 'href="/experiment"' in client.get(path).text
+
+
+def test_experiment_provenance_limitations(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/experiment").text
+    assert "MALFORMED_RESPONSE" in t
+    assert "60-case" in t
+    assert "simulated" in t.lower()
+    assert "No latency" in t
+    assert "separate recorded tests" in t

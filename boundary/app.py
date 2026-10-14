@@ -23,7 +23,13 @@ from decimal import Decimal
 
 from .classifier import classify
 from .demo import demo_cases
-from .evidence import AMD_EVIDENCE, B5_1_COUNTERFACTUAL, B5_1_OBSERVED_OFFLINE, EVOLUS_EVIDENCE
+from .evidence import (
+    AMD_EVIDENCE,
+    B5_1_COUNTERFACTUAL,
+    B5_1_OBSERVED_OFFLINE,
+    EVOLUS_EVIDENCE,
+    GEMMA_EVIDENCE,
+)
 from .guard import evaluate
 from .ledger import ActionJournal
 from .routing_demo import authority_claim_rejection, routing_for_case
@@ -181,6 +187,14 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
                 "b51_observed": B5_1_OBSERVED_OFFLINE,
                 "b51": B5_1_COUNTERFACTUAL,
             },
+        )
+
+    @app.get("/experiment", response_class=HTMLResponse)
+    def experiment_page(request: Request):
+        return templates.TemplateResponse(
+            request,
+            "experiment.html",
+            {"amd": AMD_EVIDENCE, "gemma": GEMMA_EVIDENCE},
         )
 
     return app
