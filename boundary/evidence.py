@@ -1,49 +1,30 @@
 """Curated, synthetic, public-intended evidence for the Evidence & Performance page.
 
-These values are RECORDED results from independently reviewed live integration
-tests (B5.2 AMD inference, B4 Evolus extraction) and the offline B5.1 benchmark.
-They are NOT re-run by the web application, which is fully offline. No credentials,
-API keys, secrets, private URLs, or personal account identifiers are present.
+These values are RECORDED results from independently reviewed live integration tests
+(S4E.5 AMD pilot, B4 Evolus extraction) and the offline B5.1 benchmark. They are NOT
+re-run by the web application, which is fully offline. No credentials, API keys, secrets,
+private URLs, or personal account identifiers are present.
 """
 
-# --- AMD — B5.2, recorded October 13 -------------------------------------------------
+# --- AMD — S4E.5 controlled pilot, recorded October 13 ------------------------------
 
 AMD_EVIDENCE = {
     "provenance": "RECORDED LIVE TEST",
     "recorded_at": "October 13, 2026",
     "model_id": "DeepSeek-V4-Flash",
-    "scenarios": [
-        {
-            "name": "Exact match",
-            "route": "DETERMINISTIC",
-            "amd_requests": 0,
-            "tokens": None,
-            "latency_ms": None,
-            "advisory": None,
-            "source_consistent": None,
-        },
-        {
-            "name": "Financial discrepancy",
-            "route": "INFERENCE",
-            "amd_requests": 1,
-            "tokens": {"prompt": 127, "completion": 118, "total": 245},
-            "latency_ms": 3974,
-            "advisory": "SUCCESS",
-            "source_consistent": True,
-        },
-        {
-            "name": "Missing PO",
-            "route": "HELD",
-            "amd_requests": 0,
-            "tokens": None,
-            "latency_ms": None,
-            "advisory": None,
-            "source_consistent": None,
-        },
-    ],
+    "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+    "model_verified": "unverified_mismatch",
+    "strategy_a": {"label": "LLM-first", "requests": 6, "tokens": 1314},
+    "strategy_b": {"label": "BOUNDARY deterministic-first", "requests": 2, "tokens": 473},
+    "confirmed_responses": 8,
+    "request_reduction": "66.7%",
+    "token_reduction": "64.0%",
     "note": (
-        "Three distinct synthetic scenarios, one observation each. No averages, "
-        "typical latency, or measured financial savings are claimed."
+        "Controlled eight-request pilot across three synthetic scenarios (two repetitions). "
+        "Strategy A (LLM-first) made six requests (1314 tokens); Strategy B (BOUNDARY "
+        "deterministic-first) made two (473 tokens). Request reduction is measured; token "
+        "reduction is measured for this scenario set. No per-request latency improvement and "
+        "no measured cost savings are claimed."
     ),
 }
 

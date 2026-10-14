@@ -31,33 +31,26 @@
     <section>
       <h2>AMD Inference <span class="pill pill--info">{{ amd.provenance }}</span></h2>
       <p class="muted">Recorded {{ amd.recorded_at }}. <strong>RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th scope="col">Scenario</th>
-            <th scope="col">Route</th>
-            <th scope="col">AMD requests</th>
-            <th scope="col">Tokens (prompt / completion / total)</th>
-            <th scope="col">Adapter latency</th>
-            <th scope="col">Advisory</th>
-            <th scope="col">Authority</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for s in amd.scenarios %}
-          <tr>
-            <td>{{ s.name }}</td>
-            <td class="mono">{{ s.route }}</td>
-            <td class="mono">{{ s.amd_requests }}</td>
-            <td class="mono">{% if s.tokens %}{{ s.tokens.prompt }} / {{ s.tokens.completion }} / {{ s.tokens.total }}{% else %}&mdash;{% endif %}</td>
-            <td class="mono">{% if s.latency_ms %}{{ s.latency_ms }} ms{% else %}&mdash;{% endif %}</td>
-            <td class="mono">{% if s.advisory %}{{ s.advisory }}{% if s.source_consistent %} (source-consistent){% endif %}{% else %}&mdash;{% endif %}</td>
-            <td class="mono">NONE</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <p class="muted">Model: <span class="mono">{{ amd.model_id }}</span>. {{ amd.note }}</p>
+      <dl class="facts">
+        <div><dt>Model</dt><dd class="mono">{{ amd.model_id }}</dd></div>
+        <div><dt>Endpoint-reported identifier</dt><dd class="mono">{{ amd.endpoint_model_id }}</dd></div>
+        <div><dt>Model identity classification</dt><dd class="mono">{{ amd.model_verified }}</dd></div>
+        <div><dt>Confirmed responses</dt><dd>{{ amd.confirmed_responses }}</dd></div>
+        <div><dt>Strategy A ({{ amd.strategy_a.label }})</dt><dd>{{ amd.strategy_a.requests }} requests &middot; {{ amd.strategy_a.tokens }} tokens</dd></div>
+        <div><dt>Strategy B ({{ amd.strategy_b.label }})</dt><dd>{{ amd.strategy_b.requests }} requests &middot; {{ amd.strategy_b.tokens }} tokens</dd></div>
+        <div><dt>Request reduction</dt><dd>{{ amd.request_reduction }}</dd></div>
+        <div><dt>Token reduction</dt><dd>{{ amd.token_reduction }}</dd></div>
+        <div><dt>Authority</dt><dd class="mono">NONE</dd></div>
+      </dl>
+      <p class="muted">{{ amd.note }}</p>
+    </section>
+
+    <section>
+      <h2>Google Gemma <span class="pill pill--risk">ON HOLD</span></h2>
+      <p class="muted">
+        Gemma-4-31B-IT was tested once through AMD Token Factory. The response failed
+        structured-output parsing. The full Gemma comparison has not been performed.
+      </p>
     </section>
 
     <section>
@@ -98,10 +91,11 @@
     <section>
       <h2>Limitations</h2>
       <ul>
-        <li>Three supervised AMD benchmark scenarios, but only one genuine AMD inference response (no averages or typical latency).</li>
+        <li>The controlled pilot is a small sample (eight requests, three synthetic scenarios, two repetitions); it is not the originally planned 60-case, three-repeat held-out evaluation, which was not completed.</li>
         <li>Synthetic cases only.</li>
-        <li>Timing categories are not directly comparable (nanosecond local runtime vs. millisecond adapter latency).</li>
-        <li>No measured financial savings (counterfactual call avoidance only).</li>
+        <li>No per-request latency improvement was measured.</li>
+        <li>No measured financial savings; the pilot does not claim end-to-end Evolus-plus-AMD savings.</li>
+        <li>Human authorization is simulated only; no authenticated human-authorization gate is implemented.</li>
         <li>No comprehensive security certification.</li>
       </ul>
     </section>

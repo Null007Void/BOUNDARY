@@ -39,16 +39,17 @@ def test_recorded_live_label_present(tmp_path):
 def test_numeric_accuracy(tmp_path):
     client = _client(tmp_path)
     t = client.get("/evidence").text
-    assert "127" in t
-    assert "118" in t
-    assert "245" in t
-    assert "3974" in t
+    # S4E.5 controlled pilot numbers.
+    assert "1314" in t
+    assert "473" in t
+    assert "66.7%" in t
+    assert "64.0%" in t
     assert "DeepSeek-V4-Flash" in t
+    assert "self-dploy/DeepSeek-V4-Flash" in t
+    assert "unverified_mismatch" in t
     # Offline benchmark numbers.
-    assert "6" in t
     assert "18" in t
     assert "2 of 6" in t
-    assert "3" in t  # repetitions per category
 
 
 def test_evolus_values_present(tmp_path):
@@ -98,10 +99,37 @@ def test_provenance_labels_both_present_on_page(tmp_path):
     assert "LLM-First Comparison" in t
 
 
-def test_limitations_clarify_single_inference_response(tmp_path):
+def test_limitations_clarify_scope_and_authority(tmp_path):
     client = _client(tmp_path)
     t = client.get("/evidence").text
-    assert "only one genuine AMD inference response" in t
+    # Original 60-case evaluation is explicitly not completed.
+    assert "60-case" in t
+    assert "not completed" in t
+    # Simulated, not authenticated human authorization.
+    assert "simulated only" in t
+    # No end-to-end Evolus-plus-AMD savings claim.
+    assert "Evolus-plus-AMD" in t
+
+
+def test_gemma_limitation_present(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/evidence").text
+    assert "Gemma-4-31B-IT" in t
+    assert "structured-output parsing" in t
+    assert "not been performed" in t
+
+
+def test_amd_evidence_s4e5_structure():
+    from boundary.evidence import AMD_EVIDENCE
+    assert AMD_EVIDENCE["strategy_a"]["requests"] == 6
+    assert AMD_EVIDENCE["strategy_a"]["tokens"] == 1314
+    assert AMD_EVIDENCE["strategy_b"]["requests"] == 2
+    assert AMD_EVIDENCE["strategy_b"]["tokens"] == 473
+    assert AMD_EVIDENCE["confirmed_responses"] == 8
+    assert AMD_EVIDENCE["request_reduction"] == "66.7%"
+    assert AMD_EVIDENCE["token_reduction"] == "64.0%"
+    assert AMD_EVIDENCE["endpoint_model_id"] == "self-dploy/DeepSeek-V4-Flash"
+    assert AMD_EVIDENCE["model_verified"] == "unverified_mismatch"
 
 
 def test_no_private_identifiers_or_secrets(tmp_path):
