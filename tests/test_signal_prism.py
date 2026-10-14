@@ -169,3 +169,24 @@ def test_homepage_metrics_derive_from_evidence():
     from boundary.evidence import AMD_EVIDENCE
     assert AMD_EVIDENCE["request_reduction"] == "66.7%"
     assert AMD_EVIDENCE["token_reduction"] == "64.0%"
+
+
+def test_zero_call_indicator_on_deterministic_and_held(tmp_path):
+    client = _client(tmp_path)
+    # CASE-1 (deterministic) and CASE-3 (missing PO) made zero model calls.
+    d1 = client.get("/cases/CASE-1")
+    assert "0 MODEL CALLS" in d1.text
+    assert "Resolved deterministically" in d1.text
+    d3 = client.get("/cases/CASE-3")
+    assert "0 MODEL CALLS" in d3.text
+    assert "Held on trusted lookup" in d3.text
+    # CASE-2 (discrepancy) invokes a model, so no zero-call indicator.
+    d2 = client.get("/cases/CASE-2")
+    assert "0 MODEL CALLS" not in d2.text
+
+
+def test_homepage_source_link(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/").text
+    assert "github.com/Null007Void/BOUNDARY" in t
+    assert "MIT licensed" in t

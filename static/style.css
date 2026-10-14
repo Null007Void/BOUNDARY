@@ -293,6 +293,35 @@ h3 { font-size: 1rem; margin: 0 0 0.25rem; }
 
 /* How-it-works process strip */
 .how { margin: 0 0 1.5rem; }
+
+/* Evidence status labels */
+.status-label {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--obsidian-2);
+  vertical-align: middle;
+}
+.status-label--measured { color: var(--emerald); border-color: var(--emerald); }
+.status-label--demonstrated { color: var(--cyan); border-color: var(--cyan); }
+.status-label--offline { color: var(--text-muted); border-color: var(--border); }
+.status-label--counterfactual { color: var(--amber); border-color: var(--amber); }
+.status-label--incomplete { color: var(--coral); border-color: var(--coral); }
+
+.zero-call {
+  margin: 0.5rem 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .process-strip {
   list-style: none; margin: 0.75rem 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: 0.5rem;

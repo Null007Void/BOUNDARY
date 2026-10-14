@@ -102,6 +102,12 @@
     </ol>
 
     <h2>Selective Intelligence &mdash; B3 Routing</h2>
+    {% if routing and routing.model_calls == 0 %}
+    <div class="zero-call">
+      <span class="status-label status-label--offline">0 MODEL CALLS</span>
+      <span class="muted">{% if routing.route == "HELD" %}Held on trusted lookup state &mdash; no model was invoked.{% else %}Resolved deterministically &mdash; no model was invoked.{% endif %}</span>
+    </div>
+    {% endif %}
     {% if routing and routing.model_calls > 0 %}
     <div class="notice notice--info">
       <strong>OFFLINE SIMULATION &mdash; NO LIVE AMD REQUEST.</strong> The model output below is

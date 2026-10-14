@@ -10,6 +10,7 @@ private URLs, or personal account identifiers are present.
 
 AMD_EVIDENCE = {
     "provenance": "RECORDED LIVE TEST",
+    "status": "MEASURED",
     "recorded_at": "October 13, 2026",
     "model_id": "DeepSeek-V4-Flash",
     "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
@@ -32,6 +33,7 @@ AMD_EVIDENCE = {
 
 EVOLUS_EVIDENCE = {
     "provenance": "RECORDED LIVE TEST",
+    "status": "DEMONSTRATED",
     "recorded_at": "October 13, 2026",
     "document_type": "INVOICE",
     "invoice_id": "INV-2048",

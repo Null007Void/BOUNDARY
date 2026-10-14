@@ -161,3 +161,26 @@ def test_evidence_module_has_no_live_calls():
     assert "build_amd_transport" not in src
     assert "import requests" not in src
     assert "urlopen" not in src
+
+
+def test_evidence_status_labels_present(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/evidence").text
+    assert "status-label--measured" in t
+    assert "status-label--demonstrated" in t
+    assert "status-label--offline" in t
+    assert "status-label--counterfactual" in t
+    assert "status-label--incomplete" in t
+    assert "MEASURED" in t
+    assert "DEMONSTRATED" in t
+    assert "INCOMPLETE" in t
+    # The underlying provenance remains, not flattened.
+    assert "RECORDED LIVE TEST" in t
+    assert "unverified_mismatch" in t
+
+
+def test_evidence_source_link(tmp_path):
+    client = _client(tmp_path)
+    t = client.get("/evidence").text
+    assert "github.com/Null007Void/BOUNDARY" in t
+    assert "MIT licensed" in t
