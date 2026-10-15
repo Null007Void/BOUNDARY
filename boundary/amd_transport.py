@@ -18,7 +18,7 @@ import json
 
 import httpx
 
-from .inference import InferenceAuthError, InferenceTimeout, InferenceUnavailable
+from .inference import InferenceAuthError, InferenceConnectionError, InferenceTimeout, InferenceUnavailable
 
 
 def build_amd_transport(config, client: httpx.Client | None = None):
@@ -44,13 +44,21 @@ def build_amd_transport(config, client: httpx.Client | None = None):
         try:
             with client.stream("POST", url, json=payload, headers=headers) as resp:
                 if resp.status_code in (401, 403):
-                    raise InferenceAuthError("authentication failed")
+                    raise InferenceAuthError(
+                        "authentication failed",
+                        diagnostics={"category": "auth_failure", "http_status": resp.status_code})
                 if resp.status_code == 429:
-                    raise InferenceUnavailable("rate limited")
+                    raise InferenceUnavailable(
+                        "rate limited",
+                        diagnostics={"category": "rate_limited", "http_status": 429})
                 if resp.status_code >= 500:
-                    raise InferenceUnavailable("server error")
+                    raise InferenceUnavailable(
+                        "server error",
+                        diagnostics={"category": "server_error", "http_status": resp.status_code})
                 if resp.status_code != 200:
-                    raise InferenceUnavailable("unexpected status")
+                    raise InferenceUnavailable(
+                        "unexpected status",
+                        diagnostics={"category": "unexpected_status", "http_status": resp.status_code})
 
                 # Count decoded response bytes incrementally and abort as soon
                 # as the bound is exceeded, rather than buffering the whole body.
@@ -59,17 +67,22 @@ def build_amd_transport(config, client: httpx.Client | None = None):
                 for chunk in resp.iter_bytes():
                     total += len(chunk)
                     if total > max_body_bytes:
-                        raise InferenceUnavailable("response body too large")
+                        raise InferenceUnavailable(
+                            "response body too large",
+                            diagnostics={"category": "oversized_response", "http_status": 200})
                     chunks.append(chunk)
                 body = b"".join(chunks)
         except httpx.TimeoutException:
-            raise InferenceTimeout("request timed out")
+            raise InferenceTimeout("request timed out", diagnostics={"category": "timeout"})
         except httpx.RequestError:
-            raise InferenceUnavailable("network or transport failure")
+            raise InferenceConnectionError(
+                "network or transport failure", diagnostics={"category": "connection_loss"})
 
         try:
             return json.loads(body)
         except ValueError:
-            raise InferenceUnavailable("malformed response body")
+            raise InferenceUnavailable(
+                "malformed response body",
+                diagnostics={"category": "malformed_response", "http_status": 200})
 
     return transport

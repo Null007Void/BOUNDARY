@@ -63,6 +63,10 @@ class RoutingEvidence(BaseModel):
     total_tokens: Optional[int] = None
     elapsed_ms: Optional[int] = None
     advisory_outcome: Optional[InferenceOutcome] = None
+    endpoint_model_id: Optional[str] = None  # actual reported model id (or None when absent)
+    normalized: bool = False                # whether the response was code-fence recovered
+    receipt: Optional[str] = None           # "received" | "unconfirmed" | None (transport receipt fact)
+    diagnostics: Optional[dict] = None      # structured transport diagnostics (category + http_status)
 
 
 class RoutingDecision(BaseModel):
@@ -184,6 +188,10 @@ def route(
         total_tokens=telemetry.total_tokens if model_calls else None,
         elapsed_ms=telemetry.elapsed_ms if model_calls else None,
         advisory_outcome=result.outcome,
+        endpoint_model_id=result.endpoint_model_id if model_calls else None,
+        normalized=result.normalized if model_calls else False,
+        receipt=result.receipt if model_calls else None,
+        diagnostics=result.telemetry.diagnostics if model_calls else None,
     )
 
     # Fail closed on any non-success or missing interpretation.

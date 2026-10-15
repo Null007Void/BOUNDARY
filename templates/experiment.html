@@ -10,12 +10,15 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
-    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; AMD and Evolus were integrated in separate recorded tests. Synthetic data; no real payments.</p>
+    <p class="tagline">Deterministic invoice-exception workflow. This web demo is offline &mdash; Recorded experiments include a later integrated Evolus-to-AMD trial. Synthetic data; no real payments.</p>
     <nav class="site-nav" aria-label="Primary">
-      <a href="/">Cases</a>
-      <a href="/experiment" aria-current="page">Experiment</a>
-      <a href="/evidence">Evidence &amp; Performance</a>
-    </nav>
+<a href="/">Cases</a>
+<a href="/try">Try BOUNDARY</a>
+<a href="/batch">Batch</a>
+<a href="/comparison">Comparison</a>
+<a href="/experiment" aria-current="page">Experiment</a>
+<a href="/evidence">Evidence</a>
+</nav>
   </header>
 
   <main id="main">
@@ -23,33 +26,116 @@
     <p class="muted">How identical synthetic invoice opportunities behave under two models and two strategies. This is an evidence visualization &mdash; no live inference is performed.</p>
 
     <div class="notice notice--warn">
-      <strong>Evidence visualization, not a live run.</strong> DeepSeek figures are recorded measurements from the limited October 13 pilot; Gemma&rsquo;s comparison is incomplete (a single smoke attempt returned malformed output). AI output is advisory only and never grants execution authority.
+      <strong>Recorded evidence ? no live inference on this website.</strong>
+      The DeepSeek/Gemma comparison is a historical AMD-hosted experiment.
+      The 720-observation evaluation uses simulated model responses.
+      The later Evolus-to-AMD trial is shown separately.
     </div>
 
     <section>
-      <h2>Two models &times; two strategies</h2>
+      <h2>Measured two-model comparison</h2>
+      <p class="muted">S4E.15 ? six synthetic development cases, one repetition.
+      Historical AMD inference; results are not a prediction of typical performance.</p>
+
       <table class="data-table comparison">
         <thead>
           <tr>
-            <th scope="col">Strategy</th>
-            <th scope="col">DeepSeek-V4-Flash <span class="status-label status-label--measured">MEASURED</span></th>
-            <th scope="col">Gemma-4-31B-IT <span class="status-label status-label--incomplete">INCOMPLETE</span></th>
+            <th>Model</th><th>Strategy</th><th>Requests</th>
+            <th>Tokens</th><th>Source-consistent</th>
           </tr>
         </thead>
         <tbody>
+        {% for path in historical.paths %}
           <tr>
-            <th scope="row">LLM-first</th>
-            <td class="mono">{{ amd.strategy_a.requests }} requests &middot; {{ amd.strategy_a.tokens }} tokens</td>
-            <td class="muted">not completed</td>
+            <td>{{ path.model_id }}</td>
+            <td>{{ path.strategy }}</td>
+            <td>{{ path.requests }}</td>
+            <td>{{ path.total_tokens }}</td>
+            <td>{{ path.source_consistent }}/{{ path.requests }}</td>
           </tr>
-          <tr>
-            <th scope="row">BOUNDARY deterministic-first</th>
-            <td class="mono">{{ amd.strategy_b.requests }} requests &middot; {{ amd.strategy_b.tokens }} tokens</td>
-            <td class="muted">not completed</td>
-          </tr>
+        {% endfor %}
         </tbody>
       </table>
-      <p class="muted">DeepSeek: {{ amd.request_reduction }} fewer requests and {{ amd.token_reduction }} fewer tokens for this pilot workload (recorded October 13). Endpoint-reported identity <span class="mono">{{ amd.endpoint_model_id }}</span> &mdash; classified <span class="mono">{{ amd.model_verified }}</span>. No per-request latency improvement is claimed.</p>
+
+      <p><strong>Measured comparison:</strong> 12 LLM-first calls versus
+      four BOUNDARY calls; 2,930 versus 1,010 tokens.
+      That is 66.7% fewer requests and approximately 65.5% fewer tokens
+      in this small development-set experiment.</p>
+
+      <p class="muted">Eight additional BOUNDARY zero-call cells are
+      schedule-derived deterministic resolutions, not live model requests.
+      Three source-consistency differences concern the missing-PO discrepancy
+      convention. Exact model identities remain unverified.</p>
+    </section>
+
+    <section>
+      <h2>Explore the recorded invoices</h2>
+      <p class="muted">Original historical observations, not newly generated answers.</p>
+      {% for case in historical.cases %}
+      <details>
+        <summary><strong>{{ case.case_id }}</strong> ?
+          {{ case.family }} ?
+          {{ case.invoice.invoice_id }}
+          ({{ case.observations | length }} recorded model responses)
+        </summary>
+        <table class="data-table">
+          <thead>
+            <tr><th>Model</th><th>Strategy</th><th>Outcome</th><th>Source consistency</th></tr>
+          </thead>
+          <tbody>
+          {% for obs in case.observations %}
+            <tr>
+              <td>{{ obs.model_id }}</td>
+              <td>{{ obs.strategy }}</td>
+              <td>{{ obs.outcome }}</td>
+              <td>{{ obs.source_consistency }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </details>
+      {% endfor %}
+    </section>
+
+    <section>
+      <h2>Large-scale offline verification</h2>
+      <p class="muted">S4E.10 ? workload-v1. Simulated model responses only.</p>
+      {% set offline = historical.offline_evaluation %}
+      <table class="data-table">
+        <tbody>
+          <tr><th>Observations</th><td>{{ offline.observations }}</td></tr>
+          <tr><th>Synthetic cases</th><td>{{ offline.synthetic_cases }}</td></tr>
+          <tr><th>Independent integrity checks</th><td>{{ offline.integrity_passed }}/{{ offline.observations }}</td></tr>
+          <tr><th>Task successes</th><td>{{ offline.task_success }}/{{ offline.observations }}</td></tr>
+          <tr><th>Task failures</th><td>{{ offline.task_failed }}</td></tr>
+          <tr><th>Correct routes counted</th><td>{{ offline.routing_correct }}</td></tr>
+          <tr><th>Authority violations</th><td>{{ offline.authority_violations }}</td></tr>
+          <tr><th>Live model requests</th><td>{{ offline.live_model_requests }}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Malformed mock responses contribute to task failures.
+      These results measure software behavior, not live Gemma accuracy.
+      Workload-v1 is distinct from the later live workload.</p>
+    </section>
+
+    <section>
+      <h2>Integrated Evolus-to-AMD trial</h2>
+      {% set integrated = historical.integration.observations %}
+      <p class="muted">Separate owner-confirmed live trial, not part of S4E.15.</p>
+      <table class="data-table">
+        <tbody>
+          <tr><th>Evolus multipart extraction</th><td>{{ integrated.evolus_multipart_extraction }}</td></tr>
+          <tr><th>INV-500 validation</th><td>{{ integrated.invoice_inv500_validated }}</td></tr>
+          <tr><th>DeepSeek LLM-first</th><td>{{ integrated.deepseek_llm_first.outcome }}</td></tr>
+          <tr><th>DeepSeek BOUNDARY</th><td>{{ integrated.deepseek_boundary.outcome }}</td></tr>
+          <tr><th>Gemma LLM-first</th><td>{{ integrated.gemma_llm_first.outcome }}</td></tr>
+          <tr><th>Gemma BOUNDARY</th><td>Not executed</td></tr>
+          <tr><th>Execution authority</th><td>{{ integrated.execution_authority }}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">This integrated run stopped after Gemma became unavailable.
+      The four-path integrated execution is incomplete. Historical successful
+      Gemma measurements remain separately preserved above.</p>
     </section>
 
     <section>
@@ -74,20 +160,26 @@
     <section>
       <h2>Provenance &amp; limitations</h2>
       <ul>
-        <li>DeepSeek endpoint-reported identity is <span class="mono">{{ amd.model_verified }}</span>; the exact serving identifier was not independently confirmed.</li>
-        <li>Gemma-4-31B-IT: one smoke attempt returned <span class="mono">{{ gemma.outcome }}</span>; the two-model comparison is <strong>not completed</strong>.</li>
-        <li>The six offline routing categories are offline observations, not live AMD processing.</li>
-        <li>Evolus extraction and AMD inference were separate recorded tests, not one integrated transaction.</li>
-        <li>The 60-case held-out evaluation and the authenticated human-authorization gate are not completed/implemented; authorization is simulated only.</li>
-        <li>No latency, cost, or financial-savings figures are claimed from this pilot.</li>
+        <li>S4E.10: 720 mock/offline observations; no live inference.</li>
+        <li>S4E.15: 16 historical live AMD requests across DeepSeek and Gemma.</li>
+        <li>Eight zero-call comparison cells were schedule-derived.</li>
+        <li>Three absent-PO convention differences remain disclosed.</li>
+        <li>S4E.17: genuine integrated extraction and DeepSeek inference;
+            Gemma later unavailable, complete four-path run not achieved.</li>
+        <li>Model serving identifiers remain independently unverified.</li>
+        <li>The full 60-case live experiment was not completed.</li>
+        <li>Financial approval is simulated; no authenticated human
+            authorization or real payment is performed.</li>
       </ul>
-      <p class="muted">Full detail: <a href="/evidence">Evidence &amp; Performance</a>.</p>
+      <p class="muted">Additional records:
+        <a href="/evidence">Evidence &amp; Performance</a>.
+      </p>
     </section>
   </main>
 
   <footer class="site-footer">
     Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
-    Live AMD and Evolus results are recorded separately. All financial records are fictional.
+    Recorded evidence is labelled by experiment and provenance. All financial records are fictional.
     <p>Source: <a href="https://github.com/Null007Void/BOUNDARY">github.com/Null007Void/BOUNDARY</a> (MIT licensed).</p>
   </footer>
 </body>

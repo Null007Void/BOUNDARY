@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOUNDARY &mdash; Invoice {{ invoice.invoice_id }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Batch invoice inspection. Offline development slice.</p>
+    <nav class="site-nav" aria-label="Primary">
+<a href="/">Cases</a>
+<a href="/try">Try BOUNDARY</a>
+<a href="/batch">Batch</a>
+<a href="/comparison">Comparison</a>
+<a href="/experiment">Experiment</a>
+<a href="/evidence">Evidence</a>
+</nav>
+  </header>
+
+  <main id="main">
+    <h1>Invoice {{ invoice.invoice_id }}</h1>
+    <p class="meta">
+      <span class="mono">{{ invoice.case_id }}</span>
+      <span>{{ invoice.family }}</span>
+      <span>declared PO: <code class="mono">{{ invoice.declared_po_ref }}</code></span>
+      <span>trusted PO: {{ invoice.trusted_po_state }}</span>
+    </p>
+
+    <section aria-labelledby="paths-heading">
+      <h2 id="paths-heading">Four-path results</h2>
+      <p class="muted">The same validated intake snapshot flows to all four paths. Extracted claims are
+         advisory; trusted lookup results are kept distinct. A missing trusted PO is reported as
+         unavailable &mdash; not as a verified zero discrepancy.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th scope="col">Path</th><th scope="col">Decision</th><th scope="col">Calls</th><th scope="col">Outcome</th></tr>
+        </thead>
+        <tbody>
+          {% for k in path_keys %}
+            {% set st = states.get(k) %}
+            <tr>
+              <th scope="row" class="mono">{{ k }}</th>
+              <td>
+                {% if st %}
+                  {% if st.phase == "BYPASS" %}<span class="pill pill--hold">{{ st.route }}</span>
+                  {% else %}<span class="pill pill--info">{{ st.route or "consulted" }}</span>{% endif %}
+                {% else %}<span class="pill pill--hold">queued</span>{% endif %}
+              </td>
+              <td>{{ st.model_calls if st else "&mdash;" }}</td>
+              <td>{{ st.outcome if st else "&mdash;" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="operational-heading">
+      <h2 id="operational-heading">Operational outcome</h2>
+      {% if operational %}
+      <p class="meta">
+        <span>guard: {{ operational.guard_action }}</span>
+        {% if operational.status == "APPROVED" %}
+          <span class="pill pill--verified">approved</span>
+          <span class="meta">{{ operational.commit_status }} &middot; {{ operational.verification_outcome }}</span>
+        {% elif operational.status == "BLOCKED" %}
+          <span class="pill pill--risk">blocked &mdash; {{ operational.block_reason }}</span>
+        {% elif operational.status == "VERIFICATION_FAILED" %}
+          <span class="pill pill--risk">verification failed ({{ operational.verification_outcome }})</span>
+        {% elif operational.status == "NO_OBSERVATION" %}
+          <span class="pill pill--risk">no observation</span>
+        {% else %}
+          <span class="pill pill--hold">held &mdash; {{ operational.reason }}</span>
+        {% endif %}
+      </p>
+      <p class="muted">A held case is not a completed payment or approval. Model interpretation does not
+         grant execution authority; an authenticated human-review workflow is not yet implemented.
+         Missing evidence and unsupported discrepancy are reported distinctly, never as a verified zero.</p>
+      {% else %}
+      <p class="muted">No operational outcome recorded.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Offline development slice &mdash; no live inference or extraction. All financial records are fictional.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try BOUNDARY &mdash; Signal Prism</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Deterministic invoice-exception workflow. Offline &mdash; no provider calls, no real payments. Synthetic data only.</p>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/">Cases</a>
+      <a href="/try" aria-current="page">Try BOUNDARY</a>
+      <a href="/batch">Batch</a>
+      <a href="/comparison">Comparison</a>
+      <a href="/experiment">Experiment</a>
+      <a href="/evidence">Evidence</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Try BOUNDARY</h1>
+    <p class="muted">Provide a synthetic invoice and BOUNDARY will run the real deterministic
+       pipeline &mdash; classification, guard decision, and selective routing &mdash; against declared
+       synthetic purchase-order fixtures. No model is called, nothing is stored, and
+       <strong>execution authority stays NONE</strong>.</p>
+
+    <h2>1. Choose a starting scenario</h2>
+    <ul class="scenario-list">
+      {% for key, s in scenarios.items() %}
+      <li>
+        <a class="scenario-chip {{ 'scenario-chip--active' if active_scenario == key else '' }}"
+           href="/try?scenario={{ key }}">{{ s.label }}</a>
+        <span class="muted">{{ s.po_reference }} &middot; {{ s.amount }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <h2>2. Edit the invoice</h2>
+    <form method="post" action="/evaluate" class="intake-form">
+      <div class="field">
+        <label for="invoice_id">Invoice reference</label>
+        <input id="invoice_id" name="invoice_id" type="text" value="{{ values.invoice_id }}"
+               maxlength="100" required>
+      </div>
+      <div class="field">
+        <label for="supplier_id">Supplier</label>
+        <input id="supplier_id" name="supplier_id" type="text" value="{{ values.supplier_id }}"
+               maxlength="100" required>
+      </div>
+      <div class="field">
+        <label for="po_reference">Purchase-order reference</label>
+        <input id="po_reference" name="po_reference" type="text" value="{{ values.po_reference }}"
+               maxlength="100" required>
+      </div>
+      <div class="field">
+        <label for="amount">USD invoice amount</label>
+        <input id="amount" name="amount" type="text" value="{{ values.amount }}"
+               maxlength="20" required>
+      </div>
+      <button type="submit" class="button button--primary">Evaluate Invoice</button>
+    </form>
+
+    {% if error %}
+    <div class="notice notice--warn" role="alert">
+      <strong>Validation error:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    {% if result %}
+    <h2>3. Result</h2>
+
+    <div class="notice notice--warn">
+      <strong>Authority: NONE.</strong> This is a synthetic evaluation &mdash; no approval, payment,
+      journal commit, or procurement-system mutation occurred. Deterministic logic and model output
+      never grant execution authority.
+    </div>
+
+    <h3>Source facts</h3>
+    <dl class="facts">
+      <div><dt>Invoice</dt><dd>{{ result.case.invoice.invoice_id }} (supplier {{ result.case.invoice.supplier_id }})</dd></div>
+      <div><dt>PO reference</dt><dd>{{ result.case.invoice.po_reference }}</dd></div>
+      <div><dt>Invoice amount</dt><dd>{{ result.case.invoice.computed_total_cents | cents }}</dd></div>
+      <div><dt>PO lookup state</dt><dd>{{ result.case.po_lookup.state }}</dd></div>
+      {% if result.case.po_lookup.state == "FOUND" %}
+      <div><dt>Purchase order</dt><dd>{{ result.case.po_lookup.purchase_order.po_id }} ({{ result.case.po_lookup.purchase_order.computed_total_cents | cents }})</dd></div>
+      {% endif %}
+      <div><dt>Supplier lookup state</dt><dd>{{ result.case.supplier_lookup.state.value }}</dd></div>
+      {% if result.proposal.calculations.discrepancy_cents is not none %}
+      <div><dt>Discrepancy</dt><dd>{{ result.proposal.calculations.discrepancy_cents | cents }}</dd></div>
+      {% endif %}
+    </dl>
+
+    <h3>Decision &amp; authority trace</h3>
+    <ol class="trace">
+      <li class="trace-step trace-step--info">
+        <p class="step-title">Classifier proposal</p>
+        <p>Exact-match eligible: <span class="mono">{{ result.proposal.exact_match_eligible }}</span></p>
+        {% if result.proposal.reason_codes %}
+          <p>Reason codes:
+            {% for code in result.proposal.reason_codes %}
+              <span class="reason-code">{{ code.value | replace("_", " ") }}</span>
+            {% endfor %}
+          </p>
+        {% else %}
+          <p class="muted">No reason codes.</p>
+        {% endif %}
+        <p class="step-note step-note--authority">Proposal only &mdash; not an action. execution_authority = NONE.</p>
+      </li>
+
+      <li class="trace-step {{ 'trace-step--info' if result.guard.action.value == 'APPROVE' else 'trace-step--hold' }}">
+        <p class="step-title">Guard decision</p>
+        <p>Action: <span class="mono">{{ result.guard.action.value }}</span></p>
+        <p class="step-note step-note--authority">Deterministic permission check &mdash; a simulated decision, not a payment.</p>
+      </li>
+
+      <li class="trace-step {{ 'trace-step--hold' if result.route == 'HELD' else ('trace-step--info' if result.route == 'DETERMINISTIC' else 'trace-step--warn') }}">
+        <p class="step-title">Selective routing</p>
+        <p>Route: <span class="mono">{{ result.route }}</span></p>
+        {% if result.inference.required %}
+        <div class="notice notice--info">
+          <strong>ADVISORY INFERENCE REQUIRED &mdash; UNAVAILABLE OFFLINE.</strong>
+          This case would ordinarily make one bounded advisory model call, but the public
+          offline application performs no provider requests and does not fabricate a model
+          response. Historical recorded inference is shown separately under Evidence.
+        </div>
+        {% else %}
+        <p class="muted">{{ result.inference.note }}</p>
+        {% endif %}
+        <p>execution_authority: <span class="mono">{{ result.execution_authority }}</span></p>
+      </li>
+    </ol>
+
+    <p class="muted">Modify any field above and evaluate again &mdash; the result is recomputed
+       from the submitted values, never recalled from a stored outcome.</p>
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">
+    Offline web demo &mdash; this interface performs no AMD inference or Evolus extraction.
+    Live AMD and Evolus results are recorded separately (see Evidence &amp; Performance).
+    All financial records are fictional. Visitor submissions are not stored.
+  </footer>
+</body>
+</html>

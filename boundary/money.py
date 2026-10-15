@@ -93,3 +93,67 @@ def multiply_to_cents(quantity: Decimal, unit_price: Decimal) -> int:
         product = quantity * unit_price
         cents = product.quantize(_CENT, rounding=ROUND_HALF_UP) * 100
     return int(cents)
+
+
+# --- USD amount strings ---------------------------------------------------------------
+
+_USD_PREFIXES = ("USD", "$")
+_FOREIGN_CURRENCY_CODES = ("EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", "INR", "KRW")
+
+
+def _strip_thousands(s: str) -> str:
+    """Validate and remove correctly-placed thousands separators; return the plain numeric
+    string. Rejects a separator in the fractional part, an empty/over-sized leading group, or a
+    non-3-digit later group. The returned string carries no commas."""
+    if "," not in s:
+        return s
+    if s.startswith(",") or s.endswith(",") or ",," in s:
+        raise ValueError("malformed thousands grouping")
+    if "." in s:
+        int_part, frac = s.split(".", 1)
+        if "," in frac:
+            raise ValueError("thousands separator in fractional part")
+    else:
+        int_part, frac = s, ""
+    sign = ""
+    if int_part[:1] in ("+", "-"):
+        sign, int_part = int_part[0], int_part[1:]
+    groups = int_part.split(",")
+    if any(not g.isdigit() for g in groups):
+        raise ValueError("non-digit in grouped integer part")
+    if not groups[0] or len(groups[0]) > 3:
+        raise ValueError("malformed thousands grouping (leading group)")
+    if any(len(g) != 3 for g in groups[1:]):
+        raise ValueError("malformed thousands grouping (group size)")
+    return sign + "".join(groups) + ("." + frac if "." in s else "")
+
+
+def parse_usd_cents(raw: str) -> int:
+    """Derive canonical integer USD cents from a supported amount string.
+
+    Supported explicit formats (nothing else):
+      - ``"USD 40.00"``, ``"USD 2,729.00"`` (ISO code prefix, optional whitespace)
+      - ``"$40.00"``, ``"$2,729.00"``         (dollar-sign prefix)
+      - ``"40.00"``, ``"2729.00"``            (bare numeric)
+
+    Raises ``ValueError`` for an unsupported currency code, malformed thousands grouping,
+    sub-cent precision (more than two decimal places), a non-finite value, or magnitude
+    overflow. Sub-cent values are rejected, never rounded. No floating-point arithmetic is
+    used; the numeric core is parsed and quantized by the exact-money primitives above.
+    """
+    if not isinstance(raw, str):
+        raise ValueError("monetary value must be a string")
+    s = raw.strip()
+    if not s:
+        raise ValueError("empty monetary value")
+    upper = s.upper()
+    if upper.startswith("USD"):
+        s = s[3:].lstrip()
+    elif s.startswith("$"):
+        s = s[1:].lstrip()
+    for code in _FOREIGN_CURRENCY_CODES:
+        if upper.startswith(code):
+            raise ValueError(f"unsupported currency {code!r}")
+    numeric = _strip_thousands(s)
+    return to_cents(parse_money(numeric))
+

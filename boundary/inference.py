@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import time
 from enum import Enum
 from typing import Callable, Optional
@@ -27,6 +28,9 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 # Default serving identifier for the verified AMD Token Factory model family.
 DEFAULT_MODEL_ID = "DeepSeek-V4-Flash"
+
+# The only model for which code-fence normalization may be enabled (catalogue-verified Gemma name).
+GEMMA_MODEL_ID = "Gemma-4-31B-IT"
 # Default AMD Token Factory base URL (configurable via BOUNDARY_AMD_BASE_URL).
 DEFAULT_BASE_URL = "https://developer.amd.com.cn/radeon/api/v1"
 
@@ -45,7 +49,15 @@ _AUTHORITY_KEYS = {
 
 
 class InferenceError(Exception):
-    """Base class for inference/transport failures."""
+    """Base class for inference/transport failures.
+
+    Carries optional structured diagnostics (a failure category and, when received, the HTTP
+    status code) without any raw response body, credential, header, or URL.
+    """
+
+    def __init__(self, message: str = "", *, diagnostics: Optional[dict] = None):
+        super().__init__(message)
+        self.diagnostics = diagnostics or {}
 
 
 class InferenceTimeout(InferenceError):
@@ -57,7 +69,15 @@ class InferenceAuthError(InferenceError):
 
 
 class InferenceUnavailable(InferenceError):
-    """The model service is unavailable."""
+    """The model service is unavailable (a received HTTP error)."""
+
+
+class InferenceConnectionError(InferenceUnavailable):
+    """The connection was lost without any HTTP response (remote uncertainty)."""
+
+
+class BudgetExceeded(InferenceError):
+    """A hard request/token budget was exhausted; the run must stop (not a soft failure)."""
 
 
 class InferenceConfig(BaseModel):
@@ -69,6 +89,7 @@ class InferenceConfig(BaseModel):
     timeout_seconds: float = 30.0  # configuration only; enforced by B3.2 HTTP transport
     max_input_chars: int = 4096
     max_output_chars: int = 4096
+    code_fence_normalization: bool = False  # opt-in Gemma code-fence recovery; default OFF
 
     @classmethod
     def from_env(cls) -> "InferenceConfig":
@@ -139,6 +160,7 @@ class InferenceTelemetry(BaseModel):
     elapsed_ms: int = 0
     outcome: InferenceOutcome
     error_class: Optional[str] = None
+    diagnostics: Optional[dict] = None  # structured failure classification (category + http_status)
 
 
 class InferenceResult(BaseModel):
@@ -148,6 +170,41 @@ class InferenceResult(BaseModel):
     interpretation: Optional[EvidenceInterpretation] = None
     telemetry: InferenceTelemetry
     reasons: list[str] = Field(default_factory=list)
+    normalized: bool = False  # True iff a code-fenced response was recovered (not natively valid)
+    endpoint_model_id: Optional[str] = None  # the model id the response actually reported (or None)
+    receipt: Optional[str] = None  # "received" (got an HTTP response) | "unconfirmed" (no response) | None
+
+
+# Exactly one ```json code fence wrapping exactly one complete JSON object.
+_CODE_FENCE_RE = re.compile(r"^```json[ \t]*\r?\n(.*?)\r?\n```\s*\Z", re.DOTALL)
+
+
+def normalize_code_fenced_json(content: Optional[str]) -> Optional[str]:
+    """Extract the inner JSON from a SINGLE permitted ```json fence, strictly.
+
+    Accepts ONLY one complete JSON object enclosed by one ```json fence. Rejects prose, multiple
+    objects, nested fences, partial JSON, arrays, and empty bodies. Returns the inner JSON string,
+    or None. Used only for opt-in Gemma recovery; the default adapter path does not normalize.
+    """
+    if not isinstance(content, str) or not content:
+        return None
+    m = _CODE_FENCE_RE.match(content)
+    if m is None:
+        return None
+    inner = m.group(1).strip()
+    if not inner:
+        return None
+    if "```" in inner:
+        return None
+    if not (inner.startswith("{") and inner.endswith("}")):
+        return None
+    try:
+        data = json.loads(inner)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    return inner
 
 
 # A transport takes the OpenAI-compatible request payload and returns the raw
@@ -175,14 +232,27 @@ class InferenceAdapter:
 
         try:
             raw = self._transport(payload)
-        except InferenceTimeout:
-            return self._transport_result(InferenceOutcome.TIMEOUT, "timeout", start)
-        except InferenceAuthError:
-            return self._transport_result(InferenceOutcome.AUTH_FAILURE, "auth_failure", start)
-        except InferenceUnavailable:
-            return self._transport_result(InferenceOutcome.UNAVAILABLE, "unavailable", start)
+        except InferenceTimeout as exc:
+            return self._transport_result(InferenceOutcome.TIMEOUT, "timeout", start,
+                                          receipt="unconfirmed", diagnostics=exc.diagnostics)
+        except InferenceConnectionError as exc:
+            return self._transport_result(InferenceOutcome.UNAVAILABLE, "connection_loss", start,
+                                          receipt="unconfirmed", diagnostics=exc.diagnostics)
+        except InferenceAuthError as exc:
+            return self._transport_result(InferenceOutcome.AUTH_FAILURE, "auth_failure", start,
+                                          receipt="received", diagnostics=exc.diagnostics)
+        except InferenceUnavailable as exc:
+            return self._transport_result(InferenceOutcome.UNAVAILABLE, "unavailable", start,
+                                          receipt="received", diagnostics=exc.diagnostics)
+        except BudgetExceeded:
+            raise  # hard budget stop must propagate to the caller, not become a soft UNAVAILABLE
         except Exception:
-            return self._transport_result(InferenceOutcome.UNAVAILABLE, "transport_error", start)
+            return self._transport_result(InferenceOutcome.UNAVAILABLE, "transport_error", start,
+                                          receipt="unconfirmed")
+
+        # Capture the model identifier the response actually reported (or its absence), rather
+        # than constructing it from configuration.
+        endpoint_model_id = raw.get("model") if isinstance(raw, dict) else None
 
         elapsed_ms = int((time.monotonic() - start) * 1000)
 
@@ -196,7 +266,8 @@ class InferenceAdapter:
                 error_class=usage_err,
             )
             return InferenceResult(outcome=InferenceOutcome.TELEMETRY_INVALID,
-                                   telemetry=telemetry, reasons=[usage_err])
+                                   telemetry=telemetry, reasons=[usage_err],
+                                   endpoint_model_id=endpoint_model_id)
 
         telemetry = InferenceTelemetry(
             model_id=self._config.model_id,
@@ -211,16 +282,29 @@ class InferenceAdapter:
         if content is None:
             telemetry.outcome = InferenceOutcome.UNEXPECTED_STRUCTURE
             return InferenceResult(outcome=telemetry.outcome, telemetry=telemetry,
-                                   reasons=["response structure is unexpected"])
+                                   reasons=["response structure is unexpected"],
+                                   endpoint_model_id=endpoint_model_id)
         if len(content) > self._config.max_output_chars:
             telemetry.outcome = InferenceOutcome.UNEXPECTED_STRUCTURE
             return InferenceResult(outcome=telemetry.outcome, telemetry=telemetry,
-                                   reasons=["response exceeds the output size bound"])
+                                   reasons=["response exceeds the output size bound"],
+                                   endpoint_model_id=endpoint_model_id)
+
+        # Optional code-fence normalization (opt-in, default OFF, and Gemma-only). Even when the
+        # flag is set, normalization is refused for any model other than GEMMA_MODEL_ID, so
+        # DeepSeek and other adapters can never be normalized merely by flipping a config flag.
+        normalized = False
+        if self._config.code_fence_normalization and self._config.model_id == GEMMA_MODEL_ID:
+            inner = normalize_code_fenced_json(content)
+            if inner is not None:
+                content = inner
+                normalized = True
 
         outcome, interpretation, reasons = self._parse_and_validate(content)
         telemetry.outcome = outcome
         return InferenceResult(outcome=outcome, interpretation=interpretation,
-                               telemetry=telemetry, reasons=reasons)
+                               telemetry=telemetry, reasons=reasons, normalized=normalized,
+                               endpoint_model_id=endpoint_model_id, receipt="received")
 
     def _build_payload(self, evidence: str) -> dict:
         system = (
@@ -321,12 +405,15 @@ class InferenceAdapter:
                 counts[key] = value
         return counts["prompt_tokens"], counts["completion_tokens"], counts["total_tokens"], None
 
-    def _transport_result(self, outcome: InferenceOutcome, error_class: str, start: float) -> InferenceResult:
+    def _transport_result(self, outcome: InferenceOutcome, error_class: str, start: float,
+                          receipt: Optional[str] = None, diagnostics: Optional[dict] = None) -> InferenceResult:
         elapsed_ms = int((time.monotonic() - start) * 1000)
         telemetry = InferenceTelemetry(
             model_id=self._config.model_id,
             elapsed_ms=elapsed_ms,
             outcome=outcome,
             error_class=error_class,
+            diagnostics=diagnostics,
         )
-        return InferenceResult(outcome=outcome, telemetry=telemetry, reasons=[error_class])
+        return InferenceResult(outcome=outcome, telemetry=telemetry, reasons=[error_class],
+                               receipt=receipt)

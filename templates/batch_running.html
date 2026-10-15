@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOUNDARY &mdash; Batch (in progress)</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <nav class="site-nav" aria-label="Primary">
+<a href="/">Cases</a>
+<a href="/try">Try BOUNDARY</a>
+<a href="/batch" aria-current="page">Batch</a>
+<a href="/comparison">Comparison</a>
+<a href="/experiment">Experiment</a>
+<a href="/evidence">Evidence</a>
+</nav>
+  </header>
+  <main id="main">
+    <h1>Batch &mdash; in progress</h1>
+    <p class="muted">The batch is currently running. This view reads the live durable progress, not a
+       completed result. Read-only &mdash; no execution occurs here.</p>
+    <div class="meta">
+      <span class="pill pill--info">{{ state.label }}</span>
+      <span>run: <code class="mono">{{ state.run_id }}</code></span>
+      {% if state.stopped %}<span class="pill pill--risk">stopped</span>{% endif %}
+    </div>
+    <section aria-labelledby="paths-heading">
+      <h2 id="paths-heading">Path panels (model &times; strategy)</h2>
+      <div class="panel-grid">
+        {% for p in paths %}
+        <article class="case-card">
+          <h3 class="mono">{{ p.model }}</h3>
+          <p class="meta">
+            <span class="pill pill--info">{{ p.strategy }}</span>
+            {% if p.model.startswith("DeepSeek") and p.strategy == "BOUNDARY" %}
+              <span class="pill pill--info">operational</span>
+            {% else %}
+              <span class="pill pill--hold">shadow</span>
+            {% endif %}
+          </p>
+          <p class="meta">
+            <span>{{ p.dispatched }} decision calls</span>
+            <span>{{ p.bypassed }} bypassed</span>
+            <span>{{ p.blocked }} blocked</span>
+          </p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section aria-labelledby="progress-heading">
+      <h2 id="progress-heading">Progress</h2>
+      <div class="meta">
+        <span>{{ state.invoices_completed }} / {{ state.total }} invoices processed</span>
+        <span>{{ state.paths_completed }} / 4 paths</span>
+      </div>
+      {% if state.invoice_status %}
+      <ul class="case-list">
+        {% for inv_id, status in state.invoice_status.items() %}
+        <li class="case-card">
+          <span class="mono">{{ inv_id }}</span>
+          <span class="meta">{{ status }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+  </main>
+  <footer class="site-footer">
+    Offline development slice &mdash; read-only view of live progress. No batch execution occurs on page load.
+  </footer>
+</body>
+</html>

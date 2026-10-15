@@ -1,0 +1,30 @@
+{
+  "schema_version": "s4f14-offline-summary-v1",
+  "experiment": "S4E.10",
+  "workload_version": "workload-v1",
+  "classification": "MOCK / OBSERVED_OFFLINE",
+  "synthetic_cases": 60,
+  "development_cases": 42,
+  "held_out_cases": 18,
+  "models": 2,
+  "strategies": 2,
+  "repetitions": 3,
+  "observations": 720,
+  "live_model_requests": 0,
+  "integrity_passed": 720,
+  "integrity_failed": 0,
+  "task_success": 480,
+  "task_failed": 240,
+  "routing_correct": 360,
+  "routing_incorrect": 0,
+  "authority_violations": 0,
+  "duplicate_cells": 0,
+  "source_sha256": "d4717404671d37ffad495358b3a6ff711361b58fc933b54f1e75918932ea1f49",
+  "limitations": [
+    "All model responses were simulated; no live inference occurred.",
+    "Malformed mock Gemma responses contribute to task failures.",
+    "Task-success results are not measured live model accuracy.",
+    "Routing statistics apply only to the decisions counted by that metric.",
+    "This workload-v1 experiment is separate from the later S4E.15 live comparison."
+  ]
+}

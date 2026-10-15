@@ -1,0 +1,30 @@
+{
+  "schema_version": "integrated-trial-summary-v1",
+  "run_id": "s4e17-file-live-20261015-093328-956",
+  "label": "owner-confirmed observations (raw evidence in owner's protected LiveTrials dir)",
+  "observations": {
+    "evolus_multipart_extraction": "SUCCESS",
+    "invoice_inv500_validated": true,
+    "deepseek_llm_first": {
+      "outcome": "SUCCESS",
+      "source_consistent": true,
+      "elapsed_ms": 6865
+    },
+    "deepseek_boundary": {
+      "outcome": "SUCCESS",
+      "source_consistent": true,
+      "elapsed_ms": 5309
+    },
+    "gemma_llm_first": {
+      "outcome": "UNAVAILABLE",
+      "elapsed_ms": 704
+    },
+    "gemma_boundary": {
+      "executed": false
+    },
+    "amd_attempts": 3,
+    "execution_authority": "NONE",
+    "overall": "incomplete; stopped on first AMD error"
+  },
+  "note": "This integrated trial is a SEPARATE execution from the S4E.15 standalone comparison; the two are not merged into one fabricated run. Gemma availability has been escalated to AMD."
+}

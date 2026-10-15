@@ -368,3 +368,224 @@ h3 { font-size: 1rem; margin: 0 0 0.25rem; }
   main { padding: 1rem 1rem 2.5rem; }
   .data-table { display: block; overflow-x: auto; }
 }
+
+
+/* S4F.14 batch presentation ? extends Signal Prism */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.panel-grid > .case-card {
+  min-width: 0;
+  margin: 0;
+}
+
+.panel-grid .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.panel-grid h3 {
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Historical invoice replay ? read-only disclosure panels */
+main details {
+  background: var(--cobalt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 0.75rem 0;
+  padding: 0.9rem 1.1rem;
+}
+
+main details summary {
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+main details summary:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+main details[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+main details .data-table {
+  margin-bottom: 0;
+}
+
+@media (max-width: 50rem) {
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* S4E.25 customer intake */
+
+/* First action visible on the homepage */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  margin: 1.4rem 0 0.85rem;
+}
+
+.hero-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+}
+
+.hero-action--primary,
+.intake-form .button--primary {
+  background: var(--cyan);
+  color: var(--obsidian);
+  border-color: var(--cyan);
+}
+
+.hero-action--secondary {
+  background: var(--cobalt);
+  color: var(--text);
+}
+
+.hero-action:hover,
+.hero-action:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* Choose a synthetic starting scenario */
+.scenario-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 0;
+  margin: 1rem 0 1.6rem;
+  list-style: none;
+}
+
+.scenario-list li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--cobalt);
+}
+
+.scenario-chip {
+  display: inline-block;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.scenario-chip--active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+.scenario-chip:hover,
+.scenario-chip:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+/* Customer intake form */
+.intake-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 860px;
+  padding: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--cobalt);
+  margin-bottom: 1.5rem;
+}
+
+.intake-form .field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.intake-form label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.intake-form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--obsidian-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.intake-form input:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.intake-form .button--primary {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 46px;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.intake-form .button--primary:hover,
+.intake-form .button--primary:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+@media (max-width: 44rem) {
+  .scenario-list,
+  .intake-form {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-action {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

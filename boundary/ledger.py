@@ -114,36 +114,50 @@ class ActionJournal:
         # Autocommit: each statement is durably committed; single INSERTs are
         # atomic, and concurrency is reconciled via unique constraints.
         self._conn = sqlite3.connect(path, isolation_level=None)
-        self._conn.execute("PRAGMA busy_timeout = 5000")
-        self._conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS actions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                case_id TEXT NOT NULL UNIQUE,
-                action TEXT NOT NULL,
-                invoice_id TEXT NOT NULL,
-                po_id TEXT NOT NULL,
-                supplier_id TEXT NOT NULL,
-                amount_cents INTEGER NOT NULL,
-                input_fingerprint TEXT NOT NULL,
-                policy_version TEXT NOT NULL,
-                committed_at TEXT NOT NULL
+        try:
+            self._conn.execute("PRAGMA busy_timeout = 5000")
+            self._conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS actions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    case_id TEXT NOT NULL UNIQUE,
+                    action TEXT NOT NULL,
+                    invoice_id TEXT NOT NULL,
+                    po_id TEXT NOT NULL,
+                    supplier_id TEXT NOT NULL,
+                    amount_cents INTEGER NOT NULL,
+                    input_fingerprint TEXT NOT NULL,
+                    policy_version TEXT NOT NULL,
+                    committed_at TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-        # Durable invoice identity: a given (supplier_id, invoice_id) may only be
-        # approved once, even across different case ids.
-        self._conn.execute(
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_identity "
-            "ON actions(supplier_id, invoice_id)"
-        )
-        # Shared cross-path registry: case-id and invoice uniqueness across both
-        # the B1 exact-match path and the B2 authorized-exception path. Backfill
-        # any historical approvals that predate the registry.
-        reconcile_registry(self._conn)
+            # Durable invoice identity: a given (supplier_id, invoice_id) may only be
+            # approved once, even across different case ids.
+            self._conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_identity "
+                "ON actions(supplier_id, invoice_id)"
+            )
+            # Shared cross-path registry: case-id and invoice uniqueness across both
+            # the B1 exact-match path and the B2 authorized-exception path. Backfill
+            # any historical approvals that predate the registry.
+            reconcile_registry(self._conn)
+        except Exception:
+            # A failure during schema/registry setup must not leak the open SQLite
+            # connection: on Windows an unclosed connection keeps the database file
+            # locked, so ``TemporaryDirectory``/test cleanup then fails with
+            # ``PermissionError [WinError 32]``.
+            self._conn.close()
+            raise
 
     def close(self) -> None:
         self._conn.close()
+
+    def __enter__(self) -> "ActionJournal":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
 
     def get(self, case_id: str) -> Optional[ActionReceipt]:
         """Return the committed receipt for a case, or ``None`` if absent."""

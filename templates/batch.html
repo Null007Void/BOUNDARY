@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOUNDARY &mdash; Batch</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Batch invoice workflow. Offline development slice &mdash; six synthetic invoices, four
+       model/strategy paths, deterministic operational outcome. No real payments; no live inference.</p>
+    <nav class="site-nav" aria-label="Primary">
+<a href="/">Cases</a>
+<a href="/try">Try BOUNDARY</a>
+<a href="/batch" aria-current="page">Batch</a>
+<a href="/comparison">Comparison</a>
+<a href="/experiment">Experiment</a>
+<a href="/evidence">Evidence</a>
+</nav>
+  </header>
+
+  <main id="main">
+    <h1>Batch &mdash; {{ result.batch_id }}</h1>
+    <p class="muted">Operational view. Operational path: <strong>DeepSeek-V4-Flash &times; BOUNDARY</strong>
+       (deterministic-first); the other three paths are shadow evaluations. Every displayed status is
+       derived from the actual guard/outcome record &mdash; never a hardcoded approval count.</p>
+
+    <section aria-labelledby="progress-heading">
+      <h2 id="progress-heading">Progress</h2>
+      <div class="meta">
+        <span>{{ progress.completed }} / {{ progress.total }} invoices processed</span>
+        <span>run: <code class="mono">{{ result.run_id }}</code></span>
+        {% if progress.stopped %}<span class="pill pill--risk">stopped</span>
+        {% elif result.progress_snapshots and result.progress_snapshots[-1].label == "completed" %}
+          <span class="pill pill--verified">completed</span>{% endif %}
+      </div>
+      <ul class="case-list">
+        {% for s in result.progress_snapshots %}
+        <li class="case-card">
+          <span class="pill pill--info">{{ s.label }}</span>
+          <span class="meta">{{ s.invoices_completed }} / {{ s.total }} invoices processed,
+            {{ s.paths_completed }} paths</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section aria-labelledby="invoices-heading">
+      <h2 id="invoices-heading">Invoices</h2>
+      <ul class="case-list">
+        {% for inv in invoices %}
+        <li class="case-card">
+          <a href="/batch/{{ inv.invoice_id }}">{{ inv.invoice_id }}</a>
+          <p class="meta">
+            <span class="mono">{{ inv.case_id }}</span>
+            <span>{{ inv.family }}</span>
+            {% if inv.trusted_po_state == "FOUND" %}
+              <span class="pill pill--info">PO {{ inv.declared_po_ref }} retrieved</span>
+            {% else %}
+              <span class="pill pill--none">PO {{ inv.declared_po_ref }} not retrieved</span>
+            {% endif %}
+            {% if inv.status == "APPROVED" %}
+              <span class="pill pill--verified">invoice approved</span>
+              {% if inv.commit_status == "IDEMPOTENT" %}
+                <span class="meta">existing receipt ({{ inv.commit_status }})</span>
+              {% endif %}
+            {% elif inv.status == "BLOCKED" %}
+              <span class="pill pill--risk">blocked &mdash; {{ inv.block_reason }}</span>
+            {% elif inv.status == "VERIFICATION_FAILED" %}
+              <span class="pill pill--risk">verification failed</span>
+            {% elif inv.status == "NO_OBSERVATION" %}
+              <span class="pill pill--risk">no observation</span>
+            {% elif inv.status == "INTAKE" %}
+              <span class="pill pill--none">pending</span>
+            {% else %}
+              <span class="pill pill--hold">held &mdash; {{ inv.reason }}</span>
+            {% endif %}
+          </p>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section aria-labelledby="outcome-heading">
+      <h2 id="outcome-heading">Operational outcome (DeepSeek &times; BOUNDARY)</h2>
+      <p class="muted">Only the selected operational path writes the operational journal, and only after a
+         valid selected-path observation. A held case is not a completed payment or approval; model
+         interpretation never grants execution authority.</p>
+      <ul class="case-list">
+        {% for o in operational %}
+        <li class="case-card">
+          <span class="mono">{{ o.invoice_id }}</span>
+          <p class="meta">
+            <span>guard: {{ o.guard_action }}</span>
+            {% if o.status == "APPROVED" %}
+              <span class="pill pill--verified">approved</span>
+              <span class="meta">{{ o.commit_status }} &middot; {{ o.verification_outcome }}</span>
+            {% elif o.status == "BLOCKED" %}
+              <span class="pill pill--risk">blocked &mdash; {{ o.block_reason }}</span>
+            {% elif o.status == "VERIFICATION_FAILED" %}
+              <span class="pill pill--risk">verification failed ({{ o.verification_outcome }})</span>
+            {% elif o.status == "NO_OBSERVATION" %}
+              <span class="pill pill--risk">no observation</span>
+            {% else %}
+              <span class="pill pill--hold">held &mdash; {{ o.reason }}</span>
+            {% endif %}
+          </p>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% if measurements %}
+    <section aria-labelledby="measure-heading">
+      <h2 id="measure-heading">Measurements</h2>
+      <p class="muted">Boundaries kept separate: shared intake, the operational path, shadow evaluation,
+         and the whole batch (no double-counting). Missing usage stays unknown, never zero.</p>
+      <div class="meta">
+        <span>shared intake: {{ measurements.shared_intake.extraction_calls }} extractions</span>
+        <span>operational: {{ measurements.operational_path.made_calls }} decision calls,
+              {{ measurements.operational_path.bypassed_calls }} bypassed</span>
+        <span>operational outcome:
+              {{ measurements.whole_batch.operational_approved }} approved,
+              {{ measurements.whole_batch.operational_held }} held,
+              {{ measurements.whole_batch.operational_blocked }} blocked,
+              {{ measurements.whole_batch.operational_verification_failed }} verification-failed</span>
+        <span>whole batch: {{ measurements.whole_batch.made_calls }} decision calls,
+              {{ measurements.whole_batch.bypassed_calls }} bypassed,
+              {% if measurements.whole_batch.total_tokens is none %}tokens unknown{% else %}
+              {{ measurements.whole_batch.total_tokens }} tokens{% endif %}</span>
+      </div>
+    </section>
+    {% else %}
+    <section aria-labelledby="measure-heading">
+      <h2 id="measure-heading">Measurements</h2>
+      <p class="muted">Incomplete run &mdash; no full accounting (partial or cancelled).</p>
+    </section>
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">
+    Offline development slice &mdash; no AMD inference or Evolus extraction is performed here.
+    Model and Evolus transports are injected offline doubles. All financial records are fictional.
+  </footer>
+</body>
+</html>

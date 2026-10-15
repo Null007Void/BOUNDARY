@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOUNDARY &mdash; Comparison</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <h1 class="brand">BOUNDARY <span class="accent">&mdash; Signal Prism</span></h1>
+    <p class="tagline">Four-path experimental comparison. Offline development slice; recorded events, not
+       live processing.</p>
+    <nav class="site-nav" aria-label="Primary">
+<a href="/">Cases</a>
+<a href="/try">Try BOUNDARY</a>
+<a href="/batch">Batch</a>
+<a href="/comparison" aria-current="page">Comparison</a>
+<a href="/experiment">Experiment</a>
+<a href="/evidence">Evidence</a>
+</nav>
+  </header>
+
+  <main id="main">
+    <h1>Four-path comparison</h1>
+    <p class="muted">Identical intake snapshots flow to all four model/strategy paths, arranged as an
+       intentional model-by-strategy 2&times;2 grid. BOUNDARY routes deterministically (bypassing the model
+       for exact-match and missing-PO); LLM-first consults the model for every invoice. All results are
+       offline doubles.</p>
+
+    <section aria-labelledby="panels-heading">
+      <h2 id="panels-heading">Path panels (model &times; strategy)</h2>
+      <div class="panel-grid">
+        {% for p in paths %}
+        <article class="case-card">
+          <h3 class="mono">{{ p.model_id }}</h3>
+          <p class="meta">
+            <span class="pill pill--info">{{ p.strategy }}</span>
+            {% if p.model_id.startswith("DeepSeek") and p.strategy == "BOUNDARY" %}
+              <span class="pill pill--info">operational</span>
+            {% else %}
+              <span class="pill pill--hold">shadow</span>
+            {% endif %}
+          </p>
+          <p class="meta">
+            <span>{{ p.made_calls }} decision calls</span>
+            <span>{{ p.bypassed_calls }} bypassed</span>
+            <span>{% if p.total_tokens is none %}tokens unknown{% else %}{{ p.total_tokens }} tokens{% endif %}</span>
+          </p>
+          <p class="meta">
+            <span>interpretation {{ p.interpretation_correct }} / {{ p.interpretation_checked }}</span>
+            <span>no-call {{ p.no_call }}</span>
+          </p>
+          {% if p.route_total %}
+          <p class="meta"><span>routing {{ p.route_correct }} / {{ p.route_total }} correct</span></p>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section aria-labelledby="matrix-heading">
+      <h2 id="matrix-heading">Per-invoice &times; per-path states</h2>
+      <p class="muted">States derived from the recorded event stream (REQUEST = one model call;
+         BYPASS = deterministic hold with zero decision-stage calls).</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Invoice</th>
+            {% for k in path_keys %}<th scope="col">{{ k }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for inv in invoices %}
+          <tr>
+            <th scope="row"><a href="/batch/{{ inv.invoice_id }}">{{ inv.invoice_id }}</a></th>
+            {% for k in path_keys %}
+              {% set st = states.get(inv.invoice_id, {}).get(k) %}
+              <td>
+                {% if st %}
+                  {% if st.phase == "BYPASS" %}
+                    <span class="pill pill--hold">{{ st.route }}</span>
+                  {% else %}
+                    <span class="pill pill--info">{{ st.route or "consulted" }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="pill pill--hold">queued</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="measure-heading">
+      <h2 id="measure-heading">Accumulated batch results</h2>
+      {% if measurements %}
+      <div class="meta">
+        <span>whole batch: {{ measurements.whole_batch.made_calls }} decision calls,
+              {{ measurements.whole_batch.bypassed_calls }} bypassed</span>
+        <span>operational: {{ measurements.operational_path.made_calls }} calls</span>
+        <span>shadow: {{ measurements.shadow_evaluation | length }} paths</span>
+        <span>operational outcome:
+              {{ measurements.whole_batch.operational_approved }} approved,
+              {{ measurements.whole_batch.operational_held }} held,
+              {{ measurements.whole_batch.operational_blocked }} blocked,
+              {{ measurements.whole_batch.operational_verification_failed }} verification-failed</span>
+      </div>
+      {% else %}
+      <p class="muted">Incomplete run &mdash; no full accounting (partial or cancelled).</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Offline development slice &mdash; recorded events only. No AMD inference or Evolus extraction here.
+    All financial records are fictional.
+  </footer>
+</body>
+</html>

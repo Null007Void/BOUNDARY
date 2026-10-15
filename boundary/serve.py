@@ -21,7 +21,7 @@ import sys
 
 import uvicorn
 
-from .app import create_app
+from .app import create_app, initiate_batch
 from .demo import run_demo
 
 DEFAULT_DB_PATH = "boundary.db"
@@ -36,6 +36,7 @@ def build_app():
     """
     db_path = os.environ.get("BOUNDARY_DB_PATH", DEFAULT_DB_PATH)
     run_demo(db_path)
+    initiate_batch(db_path, run_id="s4f14-public-offline-v1")
     return create_app(db_path)
 
 

@@ -45,7 +45,7 @@ import hashlib
 import json
 import os
 import time
-from typing import Optional
+from typing import Callable, Optional
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
@@ -109,6 +109,11 @@ class EvolusHttpConfig(BaseModel):
     # Verified document attachment field name for this workflow (configurable for
     # other workflows).
     submit_attachment_field: str = "file"
+
+    # Trial-only policy: when True, a transient failure (timeout/transport) during polling stops
+    # reconciliation instead of continuing — polling proceeds only after valid nonterminal
+    # responses, never after a failed HTTP request. Default False preserves the generic client.
+    stop_on_transient_failure: bool = False
 
     # Document-type choices (authoritative, uppercase; configurable).
     document_type_choices: list[str] = Field(default_factory=lambda: list(DOCUMENT_TYPE_CHOICES))
@@ -266,11 +271,29 @@ def _validate_final_output(output, config) -> tuple[EvolusOutcome, Optional[str]
 class EvolusHttpClient:
     """Submits a document and reconciles the asynchronous workflow execution."""
 
-    def __init__(self, config: EvolusHttpConfig, client: Optional[httpx.Client] = None):
+    def __init__(self, config: EvolusHttpConfig, client: Optional[httpx.Client] = None,
+                 attempt_hook: Optional[Callable[[str], Optional[int]]] = None,
+                 settle_hook: Optional[Callable[[str, int, str, dict], None]] = None):
         self._config = config
         self._client = client  # inject for tests (httpx.MockTransport)
+        # ``attempt_hook(kind) -> Optional[int]`` reserves (and returns) the attempt number before
+        # each submission ("submission") / status poll ("poll"); returning None refuses dispatch.
+        # ``settle_hook(kind, n, state, evidence)`` records that attempt's own outcome.
+        self._attempt_hook = attempt_hook
+        self._settle_hook = settle_hook
+        self._last_submission_n: Optional[int] = None
+        self._last_poll_n: Optional[int] = None
         self._success_statuses = {s.lower() for s in config.terminal_success_statuses}
         self._failure_statuses = {s.lower() for s in config.terminal_failure_statuses}
+
+    def _reserve(self, kind: str) -> Optional[int]:
+        if self._attempt_hook is None:
+            return 1  # no hook: dispatch proceeds; the attempt number is irrelevant
+        return self._attempt_hook(kind)
+
+    def _settle(self, kind: str, n: Optional[int], state: str, evidence=None) -> None:
+        if self._settle_hook is not None and n is not None:
+            self._settle_hook(kind, n, state, evidence)
 
     def _http(self) -> httpx.Client:
         if self._client is not None:
@@ -361,6 +384,12 @@ class EvolusHttpClient:
             )
 
         headers = self._headers()
+        self._last_submission_n = self._reserve("submission")
+        if self._last_submission_n is None:
+            return SubmissionResult(
+                outcome=EvolusOutcome.UNAVAILABLE, reasons=["submission budget exhausted"],
+                call_count=0, elapsed_ms=int((time.monotonic() - start) * 1000),
+            )
         if raw_text:
             raw_headers = {**headers, "Content-Type": content_type or "text/plain"}
             try:
@@ -372,7 +401,7 @@ class EvolusHttpClient:
                 )
             except httpx.RequestError:
                 return SubmissionResult(
-                    outcome=EvolusOutcome.UNAVAILABLE, reasons=["submission transport failure"],
+                    outcome=EvolusOutcome.CONNECTION_LOSS, reasons=["submission transport failure"],
                     call_count=1, elapsed_ms=int((time.monotonic() - start) * 1000),
                 )
         else:
@@ -398,7 +427,7 @@ class EvolusHttpClient:
                 )
             except httpx.RequestError:
                 return SubmissionResult(
-                    outcome=EvolusOutcome.UNAVAILABLE, reasons=["submission transport failure"],
+                    outcome=EvolusOutcome.CONNECTION_LOSS, reasons=["submission transport failure"],
                     call_count=1, elapsed_ms=int((time.monotonic() - start) * 1000),
                 )
 
@@ -438,12 +467,15 @@ class EvolusHttpClient:
     # -- polling (single GET) ----------------------------------------------------
 
     def _poll(self, execution_id: str) -> tuple[EvolusOutcome, Optional[dict], list[str]]:
+        self._last_poll_n = self._reserve("poll")
+        if self._last_poll_n is None:
+            return EvolusOutcome.UNAVAILABLE, None, ["poll budget exhausted"]
         try:
             resp = self._http().get(self._execution_url(execution_id), headers=self._headers())
         except httpx.TimeoutException:
             return EvolusOutcome.TIMEOUT, None, ["poll timed out"]
         except httpx.RequestError:
-            return EvolusOutcome.UNAVAILABLE, None, ["poll transport failure"]
+            return EvolusOutcome.CONNECTION_LOSS, None, ["poll transport failure"]
 
         if resp.status_code in (401, 403):
             return EvolusOutcome.AUTH_FAILURE, None, ["rejected credentials"]
@@ -486,9 +518,27 @@ class EvolusHttpClient:
         for _ in range(self._config.max_polls):
             outcome, body, reasons = self._poll(execution_id)
             polls += 1
+            # Settle this poll from its own response/error (not reconstructed from the final
+            # outcome); a valid Pending response is still a received response.
+            if outcome == EvolusOutcome.SUCCESS:
+                self._settle("poll", self._last_poll_n, "confirmed")
+            elif outcome in (EvolusOutcome.TIMEOUT, EvolusOutcome.CONNECTION_LOSS):
+                self._settle("poll", self._last_poll_n, "unresolved")
+            else:
+                self._settle("poll", self._last_poll_n, "failed", {"outcome": outcome.value})
             if outcome != EvolusOutcome.SUCCESS:
-                # Polling is idempotent; a transient GET failure is not fatal here.
-                if outcome in (EvolusOutcome.TIMEOUT, EvolusOutcome.UNAVAILABLE):
+                # Polling is idempotent; a transient GET failure is not fatal here (generic client).
+                if outcome in (EvolusOutcome.TIMEOUT, EvolusOutcome.UNAVAILABLE,
+                               EvolusOutcome.CONNECTION_LOSS):
+                    if self._config.stop_on_transient_failure:
+                        # Trial policy: a failed HTTP request stops polling (never continues past
+                        # it); a timeout preserves the remote uncertainty as unresolved.
+                        return EvolusExecutionResult(
+                            outcome=outcome, execution_id=execution_id,
+                            original_evidence=original_evidence,
+                            reasons=reasons + ["transient failure (trial stop)"],
+                            call_count=polls, elapsed_ms=int((time.monotonic() - start) * 1000),
+                        )
                     time.sleep(self._config.poll_interval_seconds)
                     continue
                 return EvolusExecutionResult(
@@ -563,6 +613,16 @@ class EvolusHttpClient:
             else None
         )
         submission = self.submit(text=text, filename=filename, file_bytes=file_bytes, content_type=content_type)
+        # Settle the submission attempt from its own outcome: retain the execution id once
+        # received, distinguish a confirmed response from a failure/timeout.
+        if submission.outcome == EvolusOutcome.SUCCESS:
+            self._settle("submission", self._last_submission_n, "confirmed",
+                         {"execution_id": submission.submission.execution_id})
+        elif submission.outcome in (EvolusOutcome.TIMEOUT, EvolusOutcome.CONNECTION_LOSS):
+            self._settle("submission", self._last_submission_n, "unresolved")
+        else:
+            self._settle("submission", self._last_submission_n, "failed",
+                         {"outcome": submission.outcome.value})
         if submission.outcome != EvolusOutcome.SUCCESS:
             return EvolusExecutionResult(
                 outcome=submission.outcome, original_evidence=original_evidence,

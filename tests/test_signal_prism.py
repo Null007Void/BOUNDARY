@@ -198,20 +198,31 @@ def test_experiment_page_renders(tmp_path):
 
 
 def test_experiment_two_model_comparison(tmp_path):
+    import re
+
     client = _client(tmp_path)
     t = client.get("/experiment").text
-    # DeepSeek recorded: 6 vs 2 requests, 1314 vs 473 tokens.
-    assert "6 requests" in t
-    assert "1314" in t
-    assert "2 requests" in t
-    assert "473" in t
-    # Gemma incomplete: no fabricated measurements.
-    assert "not completed" in t
-    assert "MEASURED" in t
-    assert "INCOMPLETE" in t
-    # Identity limitation preserved.
-    assert "unverified_mismatch" in t
-    assert "self-dploy/DeepSeek-V4-Flash" in t
+
+    assert "Measured two-model comparison" in t
+
+    rows = set(re.findall(
+        r"<tr>\s*<td>([^<]+)</td>\s*<td>([^<]+)</td>\s*"
+        r"<td>(\d+)</td>\s*<td>(\d+)</td>\s*"
+        r"<td>(\d+/\d+)</td>\s*</tr>",
+        t,
+    ))
+
+    expected = {
+        ("DeepSeek-V4-Flash", "LLM_FIRST", "6", "1316", "4/6"),
+        ("DeepSeek-V4-Flash", "BOUNDARY", "2", "438", "2/2"),
+        ("Gemma-4-31B-IT", "LLM_FIRST", "6", "1614", "5/6"),
+        ("Gemma-4-31B-IT", "BOUNDARY", "2", "572", "2/2"),
+    }
+
+    assert expected.issubset(rows)
+    assert "66.7%" in t
+    assert "65.5%" in t
+    assert "Eight additional BOUNDARY zero-call cells" in t
 
 
 def test_experiment_routing_journey(tmp_path):
@@ -243,8 +254,18 @@ def test_experiment_nav_link_present(tmp_path):
 def test_experiment_provenance_limitations(tmp_path):
     client = _client(tmp_path)
     t = client.get("/experiment").text
-    assert "MALFORMED_RESPONSE" in t
-    assert "60-case" in t
+
+    assert "S4E.10" in t
+    assert "S4E.15" in t
+    assert "S4E.17" in t
+    assert "720" in t
+
     assert "simulated" in t.lower()
-    assert "No latency" in t
-    assert "separate recorded tests" in t
+    assert "schedule-derived" in t
+    assert "unverified" in t.lower()
+    assert "Gemma later unavailable" in t
+
+    assert "The full 60-case live experiment was not completed" in t
+    assert "Financial approval is simulated" in t
+    assert "Execution authority" in t
+

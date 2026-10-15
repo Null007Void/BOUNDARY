@@ -72,9 +72,8 @@ def run_demo(db_path: str) -> list[dict]:
     Each summary distinguishes the decision proposal, the guard decision, the
     committed action (or hold), and the independent verification outcome.
     """
-    journal = ActionJournal(db_path)
     results: list[dict] = []
-    try:
+    with ActionJournal(db_path) as journal:
         for label, case in demo_cases():
             commit = journal.approve(case)  # commits exact match, holds the rest
             verification = verify(journal, case, receipt=commit.receipt)
@@ -87,8 +86,6 @@ def run_demo(db_path: str) -> list[dict]:
                 "receipt": commit.receipt,
                 "verification": verification,
             })
-    finally:
-        journal.close()
     return results
 
 

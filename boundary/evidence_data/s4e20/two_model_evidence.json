@@ -1,0 +1,707 @@
+{
+  "schema_version": "two-model-evidence-v1",
+  "experiment_id": "s4e15-live",
+  "workload_fingerprint": "8a6039991cb148e6b9e4f1b77da3c969b11b8d33f91324798ecc51657a90a14f",
+  "budget_contract": {
+    "global_limit": 16,
+    "completion_tokens": 512,
+    "timeout_seconds": 30.0
+  },
+  "generated_at_utc": "2026-10-15T18:42:44.199386+00:00",
+  "record_counts": {
+    "total_call_attempts": 16,
+    "total_observations": 24,
+    "zero_call_observations": 8,
+    "zero_call_note": "Eight schedule-derived deterministic BOUNDARY resolutions (4 non-discrepancy cases x 2 models) made no model call and are not model-call records.",
+    "per_path": {
+      "DeepSeek-V4-Flash / LLM_FIRST": 6,
+      "DeepSeek-V4-Flash / BOUNDARY": 2,
+      "Gemma-4-31B-IT / LLM_FIRST": 6,
+      "Gemma-4-31B-IT / BOUNDARY": 2
+    }
+  },
+  "paths": {
+    "DeepSeek-V4-Flash / LLM_FIRST": {
+      "summary": {
+        "model_id": "DeepSeek-V4-Flash",
+        "strategy": "LLM_FIRST",
+        "requests": 6,
+        "confirmed": 6,
+        "prompt_tokens": 722,
+        "completion_tokens": 594,
+        "total_tokens": 1316,
+        "latency_ms_sum": 31094,
+        "latency_ms_mean": 5182,
+        "source_consistent": 4,
+        "source_inconsistent": 2,
+        "interpretation_correct": 4,
+        "authority_none": 6,
+        "endpoint_model_ids": [
+          "self-dploy/DeepSeek-V4-Flash"
+        ],
+        "model_verified": [
+          "unverified_mismatch"
+        ]
+      },
+      "records": [
+        {
+          "sequence": 0,
+          "request_id": "f9f6bc033bdbda54",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DET-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 124,
+          "completion_tokens": 80,
+          "total_tokens": 204,
+          "elapsed_ms": 5087,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-200",
+            "invoice_id": "INV-200",
+            "po_reference": "PO-200",
+            "amount_cents": 4000,
+            "discrepancy_cents": 0
+          }
+        },
+        {
+          "sequence": 1,
+          "request_id": "f70587a757874420",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DET-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 124,
+          "completion_tokens": 80,
+          "total_tokens": 204,
+          "elapsed_ms": 5823,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-201",
+            "invoice_id": "INV-201",
+            "po_reference": "PO-201",
+            "amount_cents": 37600,
+            "discrepancy_cents": 0
+          }
+        },
+        {
+          "sequence": 2,
+          "request_id": "61060f337cd8c987",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DISC-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 123,
+          "completion_tokens": 106,
+          "total_tokens": 229,
+          "elapsed_ms": 4936,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-500",
+            "invoice_id": "INV-500",
+            "po_reference": "PO-500",
+            "amount_cents": 272900,
+            "discrepancy_cents": 28177
+          }
+        },
+        {
+          "sequence": 3,
+          "request_id": "bb196237fd1659c3",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DISC-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 123,
+          "completion_tokens": 97,
+          "total_tokens": 220,
+          "elapsed_ms": 4842,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-501",
+            "invoice_id": "INV-501",
+            "po_reference": "PO-501",
+            "amount_cents": 257600,
+            "discrepancy_cents": 24034
+          }
+        },
+        {
+          "sequence": 4,
+          "request_id": "46caa87e88de86b5",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-NOPO-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "prompt_tokens": 114,
+          "completion_tokens": 111,
+          "total_tokens": 225,
+          "elapsed_ms": 5069,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-600",
+            "invoice_id": "INV-600",
+            "po_reference": "PO-600",
+            "amount_cents": 31200,
+            "discrepancy_cents": 31200
+          }
+        },
+        {
+          "sequence": 5,
+          "request_id": "21e2b4829989bd56",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-NOPO-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "prompt_tokens": 114,
+          "completion_tokens": 120,
+          "total_tokens": 234,
+          "elapsed_ms": 5337,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-601",
+            "invoice_id": "INV-601",
+            "po_reference": "PO-601",
+            "amount_cents": 10100,
+            "discrepancy_cents": 10100
+          }
+        }
+      ]
+    },
+    "DeepSeek-V4-Flash / BOUNDARY": {
+      "summary": {
+        "model_id": "DeepSeek-V4-Flash",
+        "strategy": "BOUNDARY",
+        "requests": 2,
+        "confirmed": 2,
+        "prompt_tokens": 246,
+        "completion_tokens": 192,
+        "total_tokens": 438,
+        "latency_ms_sum": 10125,
+        "latency_ms_mean": 5062,
+        "source_consistent": 2,
+        "source_inconsistent": 0,
+        "interpretation_correct": 2,
+        "authority_none": 2,
+        "endpoint_model_ids": [
+          "self-dploy/DeepSeek-V4-Flash"
+        ],
+        "model_verified": [
+          "unverified_mismatch"
+        ]
+      },
+      "records": [
+        {
+          "sequence": 6,
+          "request_id": "1dcf47b3270d23c6",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "BOUNDARY",
+          "case_id": "v2-DISC-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 123,
+          "completion_tokens": 96,
+          "total_tokens": 219,
+          "elapsed_ms": 5342,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": "INFERENCE",
+          "route_correct": true,
+          "interpretation": {
+            "supplier_id": "SUP-500",
+            "invoice_id": "INV-500",
+            "po_reference": "PO-500",
+            "amount_cents": 272900,
+            "discrepancy_cents": 28177
+          }
+        },
+        {
+          "sequence": 7,
+          "request_id": "410d86c05ab9fbe3",
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "BOUNDARY",
+          "case_id": "v2-DISC-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 123,
+          "completion_tokens": 96,
+          "total_tokens": 219,
+          "elapsed_ms": 4783,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": "INFERENCE",
+          "route_correct": true,
+          "interpretation": {
+            "supplier_id": "SUP-501",
+            "invoice_id": "INV-501",
+            "po_reference": "PO-501",
+            "amount_cents": 257600,
+            "discrepancy_cents": 24034
+          }
+        }
+      ]
+    },
+    "Gemma-4-31B-IT / LLM_FIRST": {
+      "summary": {
+        "model_id": "Gemma-4-31B-IT",
+        "strategy": "LLM_FIRST",
+        "requests": 6,
+        "confirmed": 6,
+        "prompt_tokens": 894,
+        "completion_tokens": 720,
+        "total_tokens": 1614,
+        "latency_ms_sum": 30806,
+        "latency_ms_mean": 5134,
+        "source_consistent": 5,
+        "source_inconsistent": 1,
+        "interpretation_correct": 5,
+        "authority_none": 6,
+        "endpoint_model_ids": [
+          "self-dploy/Gemma-4-31B-IT"
+        ],
+        "model_verified": [
+          "unverified_mismatch"
+        ]
+      },
+      "records": [
+        {
+          "sequence": 8,
+          "request_id": "4d127f92fa758fb5",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DET-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 152,
+          "completion_tokens": 101,
+          "total_tokens": 253,
+          "elapsed_ms": 3291,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-200",
+            "invoice_id": "INV-200",
+            "po_reference": "PO-200",
+            "amount_cents": 4000,
+            "discrepancy_cents": 0
+          }
+        },
+        {
+          "sequence": 9,
+          "request_id": "d843b7650036d12a",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DET-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 154,
+          "completion_tokens": 102,
+          "total_tokens": 256,
+          "elapsed_ms": 3243,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-201",
+            "invoice_id": "INV-201",
+            "po_reference": "PO-201",
+            "amount_cents": 37600,
+            "discrepancy_cents": 0
+          }
+        },
+        {
+          "sequence": 10,
+          "request_id": "f13dc98173ab618f",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DISC-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 153,
+          "completion_tokens": 134,
+          "total_tokens": 287,
+          "elapsed_ms": 5500,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-500",
+            "invoice_id": "INV-500",
+            "po_reference": "PO-500",
+            "amount_cents": 272900,
+            "discrepancy_cents": 28177
+          }
+        },
+        {
+          "sequence": 11,
+          "request_id": "f1c06413de347cb5",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-DISC-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 153,
+          "completion_tokens": 134,
+          "total_tokens": 287,
+          "elapsed_ms": 4454,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-501",
+            "invoice_id": "INV-501",
+            "po_reference": "PO-501",
+            "amount_cents": 257600,
+            "discrepancy_cents": 24034
+          }
+        },
+        {
+          "sequence": 12,
+          "request_id": "a197dec4b2f08183",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-NOPO-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "prompt_tokens": 141,
+          "completion_tokens": 126,
+          "total_tokens": 267,
+          "elapsed_ms": 5022,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-600",
+            "invoice_id": "INV-600",
+            "po_reference": "PO-600",
+            "amount_cents": 31200,
+            "discrepancy_cents": 31200
+          }
+        },
+        {
+          "sequence": 13,
+          "request_id": "db64a8f48e6df68d",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "case_id": "v2-NOPO-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 141,
+          "completion_tokens": 123,
+          "total_tokens": 264,
+          "elapsed_ms": 9296,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": null,
+          "route_correct": null,
+          "interpretation": {
+            "supplier_id": "SUP-601",
+            "invoice_id": "INV-601",
+            "po_reference": "PO-601",
+            "amount_cents": 10100,
+            "discrepancy_cents": 0
+          }
+        }
+      ]
+    },
+    "Gemma-4-31B-IT / BOUNDARY": {
+      "summary": {
+        "model_id": "Gemma-4-31B-IT",
+        "strategy": "BOUNDARY",
+        "requests": 2,
+        "confirmed": 2,
+        "prompt_tokens": 306,
+        "completion_tokens": 266,
+        "total_tokens": 572,
+        "latency_ms_sum": 7597,
+        "latency_ms_mean": 3798,
+        "source_consistent": 2,
+        "source_inconsistent": 0,
+        "interpretation_correct": 2,
+        "authority_none": 2,
+        "endpoint_model_ids": [
+          "self-dploy/Gemma-4-31B-IT"
+        ],
+        "model_verified": [
+          "unverified_mismatch"
+        ]
+      },
+      "records": [
+        {
+          "sequence": 14,
+          "request_id": "133b5d671d608dbb",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "BOUNDARY",
+          "case_id": "v2-DISC-00",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 153,
+          "completion_tokens": 134,
+          "total_tokens": 287,
+          "elapsed_ms": 4051,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": "INFERENCE",
+          "route_correct": true,
+          "interpretation": {
+            "supplier_id": "SUP-500",
+            "invoice_id": "INV-500",
+            "po_reference": "PO-500",
+            "amount_cents": 272900,
+            "discrepancy_cents": 28177
+          }
+        },
+        {
+          "sequence": 15,
+          "request_id": "9649de4102725bbc",
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "BOUNDARY",
+          "case_id": "v2-DISC-01",
+          "repetition": 0,
+          "outcome": "SUCCESS",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "model_verified": "unverified_mismatch",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "prompt_tokens": 153,
+          "completion_tokens": 132,
+          "total_tokens": 285,
+          "elapsed_ms": 3546,
+          "execution_authority": "NONE",
+          "provenance": "OBSERVED_LIVE",
+          "route": "INFERENCE",
+          "route_correct": true,
+          "interpretation": {
+            "supplier_id": "SUP-501",
+            "invoice_id": "INV-501",
+            "po_reference": "PO-501",
+            "amount_cents": 257600,
+            "discrepancy_cents": 24034
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "case_id": "v2-DET-00",
+      "family": "deterministic_match",
+      "split": "development",
+      "content_hash": "2972d304cad3f87754cba42848f481ef01f1ac3db5f4bc50252148856eb34958",
+      "invoice": {
+        "supplier_id": "SUP-200",
+        "invoice_id": "INV-200",
+        "po_reference": "PO-200",
+        "amount_cents": 4000,
+        "stated_total_cents": 4000
+      },
+      "po_lookup": {
+        "state": "FOUND",
+        "po_id": "PO-200",
+        "po_amount_cents": 4000
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    },
+    {
+      "case_id": "v2-DET-01",
+      "family": "deterministic_match",
+      "split": "development",
+      "content_hash": "1084303c15b8d2071bcc2c0f94b5b0ebd458f3ae2e4d15248bf9cfcd17e620e9",
+      "invoice": {
+        "supplier_id": "SUP-201",
+        "invoice_id": "INV-201",
+        "po_reference": "PO-201",
+        "amount_cents": 37600,
+        "stated_total_cents": 37600
+      },
+      "po_lookup": {
+        "state": "FOUND",
+        "po_id": "PO-201",
+        "po_amount_cents": 37600
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    },
+    {
+      "case_id": "v2-DISC-00",
+      "family": "financial_discrepancy",
+      "split": "development",
+      "content_hash": "7a10543f1f8c22df0542d9bfbb3791cc3a5cbc2bc1a9d35c16086cc508076996",
+      "invoice": {
+        "supplier_id": "SUP-500",
+        "invoice_id": "INV-500",
+        "po_reference": "PO-500",
+        "amount_cents": 272900,
+        "stated_total_cents": 272900
+      },
+      "po_lookup": {
+        "state": "FOUND",
+        "po_id": "PO-500",
+        "po_amount_cents": 244723
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    },
+    {
+      "case_id": "v2-DISC-01",
+      "family": "financial_discrepancy",
+      "split": "development",
+      "content_hash": "d4ea773bba877ac93d127235f8578cf2e0c1b388b53c30f8da9280a0c0f85ba2",
+      "invoice": {
+        "supplier_id": "SUP-501",
+        "invoice_id": "INV-501",
+        "po_reference": "PO-501",
+        "amount_cents": 257600,
+        "stated_total_cents": 257600
+      },
+      "po_lookup": {
+        "state": "FOUND",
+        "po_id": "PO-501",
+        "po_amount_cents": 233566
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    },
+    {
+      "case_id": "v2-NOPO-00",
+      "family": "missing_purchase_order",
+      "split": "development",
+      "content_hash": "dc499276b3f3245ae731fafa455e131272690d9e3e93253c53776d425785ed3d",
+      "invoice": {
+        "supplier_id": "SUP-600",
+        "invoice_id": "INV-600",
+        "po_reference": "PO-600",
+        "amount_cents": 31200,
+        "stated_total_cents": 31200
+      },
+      "po_lookup": {
+        "state": "NOT_FOUND",
+        "po_id": null,
+        "po_amount_cents": null
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    },
+    {
+      "case_id": "v2-NOPO-01",
+      "family": "missing_purchase_order",
+      "split": "development",
+      "content_hash": "3a5554e1a3f8546aa88615ced59fe8f2f1268c27440081cb458dcd7bb57f9e7a",
+      "invoice": {
+        "supplier_id": "SUP-601",
+        "invoice_id": "INV-601",
+        "po_reference": "PO-601",
+        "amount_cents": 10100,
+        "stated_total_cents": 10100
+      },
+      "po_lookup": {
+        "state": "NOT_FOUND",
+        "po_id": null,
+        "po_amount_cents": null
+      },
+      "supplier_lookup": {
+        "state": "MATCH"
+      }
+    }
+  ],
+  "limitations": [
+    "Six synthetic development cases, one repetition; no generalization to the full 60-case study is claimed.",
+    "Three cells (two DeepSeek, one Gemma) differ from the frozen evaluator only on the absent-PO discrepancy convention (invoice-declared amount vs. the convention of zero); this is a business convention, not a measured extraction error.",
+    "Both serving identifiers are namespaced (self-dploy/...) and differ from the configured names, recorded as unverified_mismatch.",
+    "This is a recorded historical comparison, not a fresh live run; recorded playback makes no provider calls."
+  ]
+}

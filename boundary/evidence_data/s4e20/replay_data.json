@@ -1,0 +1,328 @@
+{
+  "schema_version": "two-model-replay-v1",
+  "experiment_id": "s4e15-live",
+  "generated_at_utc": "2026-10-15T18:42:44.199386+00:00",
+  "read_only": true,
+  "makes_no_provider_calls": true,
+  "is_historical_record": true,
+  "zero_call_observations": {
+    "count": 8,
+    "note": "Schedule-derived deterministic BOUNDARY resolutions (4 non-discrepancy cases x 2 models) made no model call and are not included as model observations."
+  },
+  "cases": [
+    {
+      "case_id": "v2-DET-00",
+      "family": "deterministic_match",
+      "invoice": {
+        "supplier_id": "SUP-200",
+        "invoice_id": "INV-200",
+        "po_reference": "PO-200",
+        "amount_cents": 4000,
+        "po_lookup_state": "FOUND",
+        "po_amount_cents": 4000,
+        "trusted_discrepancy_cents": 0
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 4000,
+          "model_discrepancy_cents": 0,
+          "model_po_reference": "PO-200",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 5087,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:11:40.384947+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 4000,
+          "model_discrepancy_cents": 0,
+          "model_po_reference": "PO-200",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 3291,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:20.199605+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "v2-DET-01",
+      "family": "deterministic_match",
+      "invoice": {
+        "supplier_id": "SUP-201",
+        "invoice_id": "INV-201",
+        "po_reference": "PO-201",
+        "amount_cents": 37600,
+        "po_lookup_state": "FOUND",
+        "po_amount_cents": 37600,
+        "trusted_discrepancy_cents": 0
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 37600,
+          "model_discrepancy_cents": 0,
+          "model_po_reference": "PO-201",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 5823,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:11:46.213167+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 37600,
+          "model_discrepancy_cents": 0,
+          "model_po_reference": "PO-201",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 3243,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:23.448468+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "v2-DISC-00",
+      "family": "financial_discrepancy",
+      "invoice": {
+        "supplier_id": "SUP-500",
+        "invoice_id": "INV-500",
+        "po_reference": "PO-500",
+        "amount_cents": 272900,
+        "po_lookup_state": "FOUND",
+        "po_amount_cents": 244723,
+        "trusted_discrepancy_cents": 28177
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 272900,
+          "model_discrepancy_cents": 28177,
+          "model_po_reference": "PO-500",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 4936,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:11:51.155030+00:00"
+        },
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "BOUNDARY",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 272900,
+          "model_discrepancy_cents": 28177,
+          "model_po_reference": "PO-500",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 5342,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:11.932018+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 272900,
+          "model_discrepancy_cents": 28177,
+          "model_po_reference": "PO-500",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 5500,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:28.954225+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "BOUNDARY",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 272900,
+          "model_discrepancy_cents": 28177,
+          "model_po_reference": "PO-500",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 4051,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:51.966976+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "v2-DISC-01",
+      "family": "financial_discrepancy",
+      "invoice": {
+        "supplier_id": "SUP-501",
+        "invoice_id": "INV-501",
+        "po_reference": "PO-501",
+        "amount_cents": 257600,
+        "po_lookup_state": "FOUND",
+        "po_amount_cents": 233566,
+        "trusted_discrepancy_cents": 24034
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 257600,
+          "model_discrepancy_cents": 24034,
+          "model_po_reference": "PO-501",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 4842,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:11:56.000876+00:00"
+        },
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "BOUNDARY",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 257600,
+          "model_discrepancy_cents": 24034,
+          "model_po_reference": "PO-501",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 4783,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:16.722640+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 257600,
+          "model_discrepancy_cents": 24034,
+          "model_po_reference": "PO-501",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 4454,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:33.413793+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "BOUNDARY",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 257600,
+          "model_discrepancy_cents": 24034,
+          "model_po_reference": "PO-501",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 3546,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:55.519185+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "v2-NOPO-00",
+      "family": "missing_purchase_order",
+      "invoice": {
+        "supplier_id": "SUP-600",
+        "invoice_id": "INV-600",
+        "po_reference": "PO-600",
+        "amount_cents": 31200,
+        "po_lookup_state": "NOT_FOUND",
+        "po_amount_cents": null,
+        "trusted_discrepancy_cents": null
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "model_amount_cents": 31200,
+          "model_discrepancy_cents": 31200,
+          "model_po_reference": "PO-600",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 5069,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:01.074375+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "model_amount_cents": 31200,
+          "model_discrepancy_cents": 31200,
+          "model_po_reference": "PO-600",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 5022,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:38.441015+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "v2-NOPO-01",
+      "family": "missing_purchase_order",
+      "invoice": {
+        "supplier_id": "SUP-601",
+        "invoice_id": "INV-601",
+        "po_reference": "PO-601",
+        "amount_cents": 10100,
+        "po_lookup_state": "NOT_FOUND",
+        "po_amount_cents": null,
+        "trusted_discrepancy_cents": null
+      },
+      "observations": [
+        {
+          "model_id": "DeepSeek-V4-Flash",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_inconsistent",
+          "advisory_consistent": false,
+          "model_amount_cents": 10100,
+          "model_discrepancy_cents": 10100,
+          "model_po_reference": "PO-601",
+          "endpoint_model_id": "self-dploy/DeepSeek-V4-Flash",
+          "elapsed_ms": 5337,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:06.417131+00:00"
+        },
+        {
+          "model_id": "Gemma-4-31B-IT",
+          "strategy": "LLM_FIRST",
+          "outcome": "SUCCESS",
+          "source_consistency": "source_consistent",
+          "advisory_consistent": true,
+          "model_amount_cents": 10100,
+          "model_discrepancy_cents": 0,
+          "model_po_reference": "PO-601",
+          "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+          "elapsed_ms": 9296,
+          "provenance": "OBSERVED_LIVE",
+          "recorded_at_utc": "2026-10-14T18:12:47.743988+00:00"
+        }
+      ]
+    }
+  ]
+}

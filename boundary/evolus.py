@@ -7,7 +7,7 @@ plus a transport-injected adapter for offline testing.
 
 **This module does not implement real Evolus endpoints.** The wire format, base
 URL, auth scheme, and resource IDs are undocumented here; real integration awaits
-the operator's platform API specification. What follows is a
+Tyrell's platform API specification (see ``EVOLUS_HANDOFF.md``). What follows is a
 truthful, tested interface contract — not a claim of completed integration.
 
 Five evidence categories are kept deliberately distinct:
@@ -58,6 +58,7 @@ class EvolusOutcome(str, Enum):
     POLL_EXHAUSTED = "POLL_EXHAUSTED"
     UNAVAILABLE = "UNAVAILABLE"
     TIMEOUT = "TIMEOUT"
+    CONNECTION_LOSS = "CONNECTION_LOSS"
     AUTH_FAILURE = "AUTH_FAILURE"
 
 
@@ -81,7 +82,7 @@ class EvolusConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     # Deliberately empty default: the real base URL is undocumented and must be
-    # supplied by the operator. No endpoint is invented here.
+    # supplied by Tyrell. No endpoint is invented here.
     base_url: str = ""
     api_key: str = Field(default="", repr=False)  # never printed
     timeout_seconds: float = 30.0
@@ -486,9 +487,9 @@ class EvolusAdapter:
 
 
 class EvolusIntegrationRequirements(BaseModel):
-    """The exact platform API information the operator must supply for real integration.
+    """The exact platform API information Tyrell must supply for real integration.
 
-    Every field is deliberately empty until the operator provides it; no undocumented
+    Every field is deliberately empty until Tyrell provides it; no undocumented
     endpoint, auth scheme, or resource ID is invented here.
     """
 

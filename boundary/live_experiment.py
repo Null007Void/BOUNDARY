@@ -239,12 +239,14 @@ class ExperimentTransport:
         self.live = live
         self.last_endpoint_model: Optional[str] = None
         self.last_payload: Optional[dict] = None
+        self.last_content: Optional[str] = None
         self.got_response: bool = False
 
     def __call__(self, payload: dict) -> dict:
         # Isolate state per attempt (before any rejection path).
         self.last_payload = payload
         self.last_endpoint_model = None
+        self.last_content = None
         self.got_response = False
         if not self._budget.acquire():
             raise InferenceUnavailable("experiment request budget exhausted")
@@ -252,6 +254,11 @@ class ExperimentTransport:
         self.got_response = True  # the transport actually returned a response
         if isinstance(raw, dict):
             self.last_endpoint_model = raw.get("model")
+            choices = raw.get("choices")
+            if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+                message = choices[0].get("message")
+                if isinstance(message, dict) and isinstance(message.get("content"), str):
+                    self.last_content = message["content"]
         return raw
 
 
