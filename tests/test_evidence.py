@@ -102,9 +102,10 @@ def test_provenance_labels_both_present_on_page(tmp_path):
 def test_limitations_clarify_scope_and_authority(tmp_path):
     client = _client(tmp_path)
     t = client.get("/evidence").text
-    # Original 60-case evaluation is explicitly not completed.
-    assert "60-case" in t
-    assert "not completed" in t
+    # Scope is the recorded S4E.15 comparison, not a general-performance claim.
+    assert "six synthetic cases per model" in t
+    assert "sixteen genuine AMD requests" in t
+    assert "not a prediction" in t
     # Simulated, not authenticated human authorization.
     assert "simulated only" in t
     # No end-to-end Evolus-plus-AMD savings claim.
@@ -116,7 +117,9 @@ def test_gemma_limitation_present(tmp_path):
     t = client.get("/evidence").text
     assert "Gemma-4-31B-IT" in t
     assert "structured-output parsing" in t
-    assert "not been performed" in t
+    # The integrated Gemma evaluation remains explicitly incomplete and availability-limited.
+    assert "not dispatched" in t
+    assert "catalog" in t
 
 
 def test_amd_evidence_s4e5_structure():
@@ -170,10 +173,8 @@ def test_evidence_status_labels_present(tmp_path):
     assert "status-label--demonstrated" in t
     assert "status-label--offline" in t
     assert "status-label--counterfactual" in t
-    assert "status-label--incomplete" in t
     assert "MEASURED" in t
     assert "DEMONSTRATED" in t
-    assert "INCOMPLETE" in t
     # The underlying provenance remains, not flattened.
     assert "RECORDED LIVE TEST" in t
     assert "unverified_mismatch" in t

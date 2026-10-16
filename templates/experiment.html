@@ -26,7 +26,7 @@
     <p class="muted">How identical synthetic invoice opportunities behave under two models and two strategies. This is an evidence visualization &mdash; no live inference is performed.</p>
 
     <div class="notice notice--warn">
-      <strong>Recorded evidence ? no live inference on this website.</strong>
+      <strong>Recorded evidence &mdash; no live inference on this website.</strong>
       The DeepSeek/Gemma comparison is a historical AMD-hosted experiment.
       The 720-observation evaluation uses simulated model responses.
       The later Evolus-to-AMD trial is shown separately.
@@ -34,7 +34,7 @@
 
     <section>
       <h2>Measured two-model comparison</h2>
-      <p class="muted">S4E.15 ? six synthetic development cases, one repetition.
+      <p class="muted">S4E.15 &mdash; six synthetic development cases, one repetition.
       Historical AMD inference; results are not a prediction of typical performance.</p>
 
       <table class="data-table comparison">
@@ -57,10 +57,11 @@
         </tbody>
       </table>
 
-      <p><strong>Measured comparison:</strong> 12 LLM-first calls versus
-      four BOUNDARY calls; 2,930 versus 1,010 tokens.
-      That is 66.7% fewer requests and approximately 65.5% fewer tokens
-      in this small development-set experiment.</p>
+      <p><strong>Measured comparison:</strong> {{ s4e15_amd.llm_first.requests }} LLM-first calls versus
+      {{ s4e15_amd.boundary.requests }} BOUNDARY calls; {{ s4e15_amd.llm_first.tokens }} versus
+      {{ s4e15_amd.boundary.tokens }} tokens.
+      That is {{ s4e15_amd.request_reduction_percent }}% fewer requests and approximately
+      {{ s4e15_amd.token_reduction_percent }}% fewer tokens in this small development-set experiment.</p>
 
       <p class="muted">Eight additional BOUNDARY zero-call cells are
       schedule-derived deterministic resolutions, not live model requests.
@@ -73,8 +74,8 @@
       <p class="muted">Original historical observations, not newly generated answers.</p>
       {% for case in historical.cases %}
       <details>
-        <summary><strong>{{ case.case_id }}</strong> ?
-          {{ case.family }} ?
+        <summary><strong>{{ case.case_id }}</strong> &mdash;
+          {{ case.family }} &mdash;
           {{ case.invoice.invoice_id }}
           ({{ case.observations | length }} recorded model responses)
         </summary>
@@ -99,7 +100,7 @@
 
     <section>
       <h2>Large-scale offline verification</h2>
-      <p class="muted">S4E.10 ? workload-v1. Simulated model responses only.</p>
+      <p class="muted">S4E.10 &mdash; workload-v1. Simulated model responses only.</p>
       {% set offline = historical.offline_evaluation %}
       <table class="data-table">
         <tbody>
@@ -119,9 +120,12 @@
     </section>
 
     <section>
-      <h2>Integrated Evolus-to-AMD trial</h2>
+      <h2>Integrated Evolus-to-AMD trial (S4E.17)</h2>
       {% set integrated = historical.integration.observations %}
-      <p class="muted">Separate owner-confirmed live trial, not part of S4E.15.</p>
+      <p class="muted">Separate owner-confirmed live trial, not part of S4E.15.
+        Genuine Evolus document extraction succeeded, and both DeepSeek inference paths
+        (LLM-first and BOUNDARY) completed successfully. The four-path integrated run is
+        partial.</p>
       <table class="data-table">
         <tbody>
           <tr><th>Evolus multipart extraction</th><td>{{ integrated.evolus_multipart_extraction }}</td></tr>
@@ -133,9 +137,11 @@
           <tr><th>Execution authority</th><td>{{ integrated.execution_authority }}</td></tr>
         </tbody>
       </table>
-      <p class="muted">This integrated run stopped after Gemma became unavailable.
-      The four-path integrated execution is incomplete. Historical successful
-      Gemma measurements remain separately preserved above.</p>
+      <p class="muted">The Gemma leg of this integrated run was interrupted when Gemma
+      became unavailable from the authenticated AMD Token Factory catalog. This is a
+      later catalog change, not a failure of the earlier eight successful S4E.15 Gemma
+      requests, which remain separately preserved above. The integrated four-path
+      execution is therefore partial.</p>
     </section>
 
     <section>
@@ -167,7 +173,7 @@
         <li>S4E.17: genuine integrated extraction and DeepSeek inference;
             Gemma later unavailable, complete four-path run not achieved.</li>
         <li>Model serving identifiers remain independently unverified.</li>
-        <li>The full 60-case live experiment was not completed.</li>
+        <li>S4E.15: sixteen genuine AMD requests across six synthetic development cases per model (one repetition).</li>
         <li>Financial approval is simulated; no authenticated human
             authorization or real payment is performed.</li>
       </ul>

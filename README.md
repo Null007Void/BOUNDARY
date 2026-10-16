@@ -43,8 +43,10 @@ CaseInput
 
 Separate modules add selective routing (`router`, `inference`, `amd_transport`) for the
 B3 advisory path and document extraction (`evolus`, `evolus_http`) for the B4 path. The
-web application (`app.py`) is **offline and read-only**; it exercises the deterministic
-pipeline and the offline routing demonstration, never the live AMD/Evolus transports.
+web application (`app.py`) is **offline** (no live AMD/Evolus transports) and exposes a
+bounded interactive intake alongside read-only browsing: `GET /try` and `POST /evaluate`
+run the deterministic pipeline on a visitor's synthetic invoice in memory — never
+persisted, never contacting a provider, and never granting execution authority.
 
 ## The three demo cases
 
@@ -61,13 +63,26 @@ pipeline and the offline routing demonstration, never the live AMD/Evolus transp
 - **NOT_ELIGIBLE** means ineligible for the simulated exact-match approval path — not a
   certification of the held case.
 
-## Offline web demo vs. recorded integration tests
+## Public routes and offline vs. recorded inference
 
-The browser application is **fully offline**: it performs no AMD inference and no Evolus
-extraction, and requires no credentials. The AMD and Evolus results shown on the
-**Evidence & Performance** page (`/evidence`) are **separately recorded live integration
-tests** (B5.2 AMD inference, B4 Evolus extraction), clearly labeled
-`RECORDED LIVE TEST — NOT RE-RUN BY THIS PAGE`.
+The browser application is **offline**: it performs no AMD inference and no Evolus
+extraction, and requires no credentials.
+
+- **`/` (Cases)** and **`/cases/<id>`** — read-only traces of the three demo cases.
+- **`/try`** and **`POST /evaluate`** — a bounded interactive intake: a visitor supplies a
+  synthetic invoice, and BOUNDARY runs the deterministic pipeline in memory. Nothing is
+  stored, no provider is contacted, and execution authority stays `NONE`.
+- **`/batch`**, **`/comparison`**, and **`/batch/<invoice_id>`** — the six-invoice synthetic
+  batch and four-path (model × strategy) comparison. Model/strategy paths use offline
+  simulated adapters; their decision-call counts are **not** live AMD API requests.
+- **`/experiment`** and **`/evidence`** — the recorded evidence: the S4E.15 two-model AMD
+  comparison (16 genuine requests), the S4E.10 offline 720-observation benchmark, and the
+  separate S4E.5 DeepSeek pilot and S4E.17 integrated Evolus-to-AMD trial.
+
+The AMD and Evolus results shown on **Evidence & Performance** (`/evidence`) and
+**Experiment** (`/experiment`) are **separately recorded live integration tests**, clearly
+labeled `RECORDED LIVE TEST — NOT RE-RUN BY THIS PAGE`. The offline simulated adapters used
+by the batch/comparison views are a distinct category from those genuine recorded requests.
 
 ## Running locally
 
@@ -84,8 +99,9 @@ python -m boundary.demo --db boundary.db
 uvicorn boundary.app:app --host 0.0.0.0 --port 8000
 ```
 
-Open `http://localhost:8000/` for the case list, any `/cases/<id>` for the trace, and
-`/evidence` for the recorded evidence.
+Open `http://localhost:8000/` for the case list, `/try` for the interactive synthetic
+intake, `/batch` and `/comparison` for the six-invoice batch and four-path comparison,
+`/experiment` and `/evidence` for the recorded evidence, and any `/cases/<id>` for a trace.
 
 ### Tests
 
@@ -129,6 +145,4 @@ authorized, independently reviewed phases (B0–B6); each phase was accepted by 
 independent reviewer before the next began. Model output within the system is advisory
 only and never grants execution or financial authority.
 
-No claim is made here about code predating the competition window. Competition-required
-disclosures (team roster and contact details) remain to be finalized by the team before
-public submission.
+No claim is made here about code predating the competition window.

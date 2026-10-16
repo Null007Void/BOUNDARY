@@ -10,18 +10,24 @@ _DATA_ROOT = Path(__file__).resolve().parent / "evidence_data" / "s4e20"
 
 _EXPECTED_SHA256 = {
     "two_model_evidence.json":
-        "38fd47db6263cee80e4e5ee873ecc09471ba0af4d39e76edcbf832aa56d2c6cb",
+        "14f3c51f46a7f3f2fb10a79fbd1265fb6e3fabd209c15d12cf346d9b38e9735f",
     "replay_data.json":
-        "826fa8ba6ac9ba181887b2edc0e91356a09f54d7f1eebd377bb44166f5b5a5af",
+        "5b0fbf3ef92590630f2c2eb5719030aa6c0e001c9d4359a05c6b99339b449972",
     "integrated_trial_summary.json":
-        "e20d2d97822b2a6a0a6002069a2011a8ddb183c838bca3a4677b26e526a0cf72",
+        "c8ebe578ef1e406ea15fc89ae216faee5fe6cc45039ae7cb25c72c87b8a7fbc4",
 }
 
 def _read_pinned_json(filename: str) -> dict:
     data = (_DATA_ROOT / filename).read_bytes()
-    if hashlib.sha256(data).hexdigest() != _EXPECTED_SHA256[filename]:
+    # Canonicalize line endings to LF before hashing, so a Windows (CRLF) checkout and a
+    # Linux/GitHub (LF) checkout verify identically — without weakening integrity checks:
+    # any substantive content change still changes the canonical bytes and fails closed.
+    text = data.decode("utf-8").replace(chr(13) + chr(10), chr(10)).replace(chr(13), chr(10))
+    canonical = text.encode("utf-8")
+
+    if hashlib.sha256(canonical).hexdigest() != _EXPECTED_SHA256[filename]:
         raise ValueError(f"Historical evidence checksum mismatch: {filename}")
-    return json.loads(data.decode("utf-8"))
+    return json.loads(canonical.decode("utf-8"))
 
 def load_public_experiment() -> dict:
     """Load recorded evidence without executing inference or writing state."""
@@ -87,4 +93,91 @@ def load_public_experiment() -> dict:
         "integration": integration,
         "is_historical_record": True,
         "makes_no_provider_calls": True,
+    }
+
+
+def gemma_demonstration() -> dict:
+    """Derive the Gemma metrics from the hash-verified S4E.15 records (no duplicate hardcoding)."""
+    experiment = _read_pinned_json("two_model_evidence.json")
+    llm = experiment["paths"]["Gemma-4-31B-IT / LLM_FIRST"]["summary"]
+    boundary = experiment["paths"]["Gemma-4-31B-IT / BOUNDARY"]["summary"]
+    return {
+        "status": "DEMONSTRATED — RECORDED LIVE",
+        "provenance": "RECORDED LIVE TEST",
+        "model_id": "Gemma-4-31B-IT",
+        "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+        "model_verified": "unverified_mismatch",
+        "authority": "NONE",
+        "llm_first": {
+            "requests": llm["requests"],
+            "tokens": llm["total_tokens"],
+            "source_consistent": llm["source_consistent"],
+            "source_inconsistent": llm["source_inconsistent"],
+        },
+        "boundary": {
+            "requests": boundary["requests"],
+            "tokens": boundary["total_tokens"],
+            "source_consistent": boundary["source_consistent"],
+            "source_inconsistent": boundary["source_inconsistent"],
+        },
+        "total_requests": llm["requests"] + boundary["requests"],
+        "source_consistent_overall": llm["source_consistent"] + boundary["source_consistent"],
+    }
+
+
+# Transparency disclosure: the actual Gemma history, in order.
+GEMMA_HISTORY = [
+    "The first October 13, 2026 Gemma smoke attempt produced code-fenced JSON that "
+    "failed structured-output parsing.",
+    "Gemma-specific fenced-JSON normalization followed by strict parsing addressed that problem.",
+    "Subsequent live tests successfully demonstrated Gemma inference (eight confirmed requests).",
+    "Later, Gemma disappeared from the authenticated AMD Token Factory model catalog, "
+    "preventing additional requests. This is an observed availability limitation — not a "
+    "claim that AMD permanently discontinued Gemma.",
+    "The separate Evolus-to-AMD integrated trial remains incomplete: DeepSeek succeeded on "
+    "two paths, Gemma LLM-first became unavailable, and Gemma BOUNDARY was not dispatched.",
+    "The exact underlying serving-model identity has not been independently verified "
+    "(the endpoint reported \"self-dploy/Gemma-4-31B-IT\", classified \"unverified_mismatch\").",
+]
+
+GEMMA_SOURCE_CONSISTENCY_NOTE = (
+    "The single source-inconsistent Gemma record is the absent-purchase-order evaluator "
+    "convention (the invoice amount versus the evaluator's convention of zero), not a "
+    "measured interpretation error."
+)
+
+
+def amd_demonstration() -> dict:
+    """Derive the complete S4E.15 AMD summary (DeepSeek + Gemma) from the hash-verified records."""
+    experiment = _read_pinned_json("two_model_evidence.json")
+
+    def _summary(model, strategy):
+        return experiment["paths"][f"{model} / {strategy}"]["summary"]
+
+    ds_lf = _summary("DeepSeek-V4-Flash", "LLM_FIRST")
+    ds_b = _summary("DeepSeek-V4-Flash", "BOUNDARY")
+    ge_lf = _summary("Gemma-4-31B-IT", "LLM_FIRST")
+    ge_b = _summary("Gemma-4-31B-IT", "BOUNDARY")
+
+    deepseek_requests = ds_lf["requests"] + ds_b["requests"]
+    deepseek_tokens = ds_lf["total_tokens"] + ds_b["total_tokens"]
+    gemma_requests = ge_lf["requests"] + ge_b["requests"]
+    gemma_tokens = ge_lf["total_tokens"] + ge_b["total_tokens"]
+    llm_requests = ds_lf["requests"] + ge_lf["requests"]
+    llm_tokens = ds_lf["total_tokens"] + ge_lf["total_tokens"]
+    boundary_requests = ds_b["requests"] + ge_b["requests"]
+    boundary_tokens = ds_b["total_tokens"] + ge_b["total_tokens"]
+
+    return {
+        "status": "DEMONSTRATED — RECORDED LIVE",
+        "provenance": "RECORDED LIVE TEST",
+        "authority": "NONE",
+        "deepseek": {"requests": deepseek_requests, "tokens": deepseek_tokens},
+        "gemma": {"requests": gemma_requests, "tokens": gemma_tokens},
+        "combined": {"requests": deepseek_requests + gemma_requests,
+                     "tokens": deepseek_tokens + gemma_tokens},
+        "llm_first": {"requests": llm_requests, "tokens": llm_tokens},
+        "boundary": {"requests": boundary_requests, "tokens": boundary_tokens},
+        "request_reduction_percent": round((llm_requests - boundary_requests) / llm_requests * 100, 1),
+        "token_reduction_percent": round((llm_tokens - boundary_tokens) / llm_tokens * 100, 1),
     }

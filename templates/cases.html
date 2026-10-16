@@ -41,11 +41,11 @@
 
       <ul class="hero-metrics">
         <li class="metric">
-          <span class="metric-value">{{ amd.request_reduction }}</span>
+          <span class="metric-value">{{ s4e15_amd.request_reduction_percent }}%</span>
           <span class="metric-label">fewer inference requests</span>
         </li>
         <li class="metric">
-          <span class="metric-value">{{ amd.token_reduction }}</span>
+          <span class="metric-value">{{ s4e15_amd.token_reduction_percent }}%</span>
           <span class="metric-label">fewer tokens</span>
         </li>
         <li class="metric">
@@ -53,7 +53,7 @@
           <span class="metric-label">AI-granted execution authority</span>
         </li>
       </ul>
-      <p class="hero-caveat muted">Recorded from the limited S4E.5 DeepSeek synthetic pilot &mdash; not a universal claim or the completed 60-case evaluation. <a href="/evidence">See evidence, provenance, and model-identity limitations</a>.</p>
+      <p class="hero-caveat muted">Recorded from the S4E.15 two-model AMD comparison &mdash; six synthetic development cases per model, one repetition, sixteen genuine requests. A small sample, not a universal claim. S4E.5 is preserved as an earlier DeepSeek-only pilot. <a href="/evidence">See evidence, provenance, and model-identity limitations</a>.</p>
     </section>
 
     <section class="how">

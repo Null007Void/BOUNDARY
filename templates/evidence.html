@@ -28,13 +28,31 @@
 
     <div class="notice notice--warn">
       <strong>Authority boundary.</strong> No AI authorization, no payments. Human authorization is
-      simulated only. Everything below is advisory and unverified evidence &mdash; none of it grants
-      execution authority.
+      simulated only. Everything below is advisory &mdash; none of it grants execution authority.
+      Historical records carry integrity checks and independent review; the underlying
+      serving-model identities remain independently unverified.
     </div>
 
     <section>
-      <h2>AMD Inference <span class="status-label status-label--measured">{{ amd.status }}</span></h2>
-      <p class="muted">Recorded {{ amd.recorded_at }}. <strong>RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
+      <h2>AMD Inference &mdash; S4E.15 <span class="status-label status-label--demonstrated">{{ s4e15_amd.status }}</span></h2>
+      <p class="muted">Recorded {{ s4e15_amd.provenance }} &mdash; <strong>NOT RE-RUN BY THIS PAGE.</strong>
+        Sixteen confirmed live AMD Token Factory requests across DeepSeek and Gemma.</p>
+      <dl class="facts">
+        <div><dt>DeepSeek-V4-Flash</dt><dd>{{ s4e15_amd.deepseek.requests }} requests &middot; {{ s4e15_amd.deepseek.tokens }} tokens</dd></div>
+        <div><dt>Google Gemma-4-31B-IT</dt><dd>{{ s4e15_amd.gemma.requests }} requests &middot; {{ s4e15_amd.gemma.tokens }} tokens</dd></div>
+        <div><dt>Combined</dt><dd>{{ s4e15_amd.combined.requests }} requests &middot; {{ s4e15_amd.combined.tokens }} tokens</dd></div>
+        <div><dt>LLM-first</dt><dd>{{ s4e15_amd.llm_first.requests }} requests &middot; {{ s4e15_amd.llm_first.tokens }} tokens</dd></div>
+        <div><dt>BOUNDARY deterministic-first</dt><dd>{{ s4e15_amd.boundary.requests }} requests &middot; {{ s4e15_amd.boundary.tokens }} tokens</dd></div>
+        <div><dt>Request reduction</dt><dd>{{ s4e15_amd.request_reduction_percent }}%</dd></div>
+        <div><dt>Token reduction</dt><dd>~{{ s4e15_amd.token_reduction_percent }}%</dd></div>
+        <div><dt>Authority</dt><dd class="mono">{{ s4e15_amd.authority }}</dd></div>
+      </dl>
+      <p><a href="/experiment">View the full four-path comparison and replay &rarr;</a></p>
+    </section>
+
+    <section>
+      <h2>AMD Inference &mdash; S4E.5 earlier pilot <span class="status-label status-label--measured">{{ amd.status }}</span></h2>
+      <p class="muted">Recorded {{ amd.recorded_at }}. <strong>Earlier DeepSeek-only pilot &mdash; RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
       <dl class="facts">
         <div><dt>Model</dt><dd class="mono">{{ amd.model_id }}</dd></div>
         <div><dt>Endpoint-reported identifier</dt><dd class="mono">{{ amd.endpoint_model_id }}</dd></div>
@@ -50,11 +68,24 @@
     </section>
 
     <section>
-      <h2>Google Gemma <span class="status-label status-label--incomplete">INCOMPLETE</span></h2>
-      <p class="muted">
-        Gemma-4-31B-IT was tested once through AMD Token Factory. The response failed
-        structured-output parsing. The full Gemma comparison has not been performed.
-      </p>
+      <h2>Google Gemma <span class="status-label status-label--demonstrated">{{ gemma.status }}</span></h2>
+      <p class="muted">Recorded {{ gemma.provenance }} &mdash; <strong>NOT RE-RUN BY THIS PAGE.</strong>
+        Eight confirmed real inference requests through AMD Token Factory.</p>
+      <dl class="facts">
+        <div><dt>Model</dt><dd class="mono">{{ gemma.model_id }}</dd></div>
+        <div><dt>Endpoint-reported identifier</dt><dd class="mono">{{ gemma.endpoint_model_id }}</dd></div>
+        <div><dt>Model identity classification</dt><dd class="mono">{{ gemma.model_verified }}</dd></div>
+        <div><dt>LLM-first</dt><dd>{{ gemma.llm_first.requests }} requests &middot; {{ gemma.llm_first.tokens }} tokens &middot; {{ gemma.llm_first.source_consistent }}/{{ gemma.llm_first.requests }} source-consistent</dd></div>
+        <div><dt>BOUNDARY deterministic-first</dt><dd>{{ gemma.boundary.requests }} requests &middot; {{ gemma.boundary.tokens }} tokens &middot; {{ gemma.boundary.source_consistent }}/{{ gemma.boundary.requests }} source-consistent</dd></div>
+        <div><dt>Total</dt><dd>{{ gemma.total_requests }} requests &middot; {{ gemma.source_consistent_overall }}/{{ gemma.total_requests }} source-consistent</dd></div>
+        <div><dt>Authority</dt><dd class="mono">{{ gemma.authority }}</dd></div>
+      </dl>
+      <p class="muted">{{ gemma_source_note }}</p>
+      <p><a href="/experiment">View the full four-path comparison and replay &rarr;</a></p>
+      <h3>Gemma history</h3>
+      <ol>
+        {% for item in gemma_history %}<li>{{ item }}</li>{% endfor %}
+      </ol>
     </section>
 
     <section>
@@ -95,7 +126,7 @@
     <section>
       <h2>Limitations</h2>
       <ul>
-        <li>The controlled pilot is a small sample (eight requests, three synthetic scenarios, two repetitions); it is not the originally planned 60-case, three-repeat held-out evaluation, which was not completed.</li>
+        <li>The recorded S4E.15 comparison is a small development sample (six synthetic cases per model, one repetition, sixteen genuine AMD requests); results are not a prediction of general production performance.</li>
         <li>Synthetic cases only.</li>
         <li>No per-request latency improvement was measured.</li>
         <li>No measured financial savings; the pilot does not claim end-to-end Evolus-plus-AMD savings.</li>

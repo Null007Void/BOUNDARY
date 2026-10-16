@@ -122,10 +122,12 @@
         <p>Route: <span class="mono">{{ result.route }}</span></p>
         {% if result.inference.required %}
         <div class="notice notice--info">
-          <strong>ADVISORY INFERENCE REQUIRED &mdash; UNAVAILABLE OFFLINE.</strong>
+          <strong>LIVE INFERENCE IS INTENTIONALLY DISABLED FOR PUBLIC VISITORS.</strong>
           This case would ordinarily make one bounded advisory model call, but the public
-          offline application performs no provider requests and does not fabricate a model
-          response. Historical recorded inference is shown separately under Evidence.
+          application performs no provider requests and does not fabricate a model response.
+          No model was called for this submitted invoice. Genuine recorded AMD inference is
+          shown separately under <a href="/evidence">Evidence</a> and
+          <a href="/experiment">Experiment</a>.
         </div>
         {% else %}
         <p class="muted">{{ result.inference.note }}</p>

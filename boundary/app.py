@@ -31,9 +31,14 @@ from .evidence import (
     B5_1_COUNTERFACTUAL,
     B5_1_OBSERVED_OFFLINE,
     EVOLUS_EVIDENCE,
-    GEMMA_EVIDENCE,
 )
-from .public_experiment import load_public_experiment
+from .public_experiment import (
+    GEMMA_HISTORY,
+    GEMMA_SOURCE_CONSISTENCY_NOTE,
+    amd_demonstration,
+    gemma_demonstration,
+    load_public_experiment,
+)
 from .guard import evaluate
 from .intake import IntakeError, build_case, evaluate_intake
 from .ledger import ActionJournal
@@ -260,7 +265,8 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
         return templates.TemplateResponse(
             request,
             "cases.html",
-            {"rows": rows, "state": state, "amd": AMD_EVIDENCE},
+            {"rows": rows, "state": state, "amd": AMD_EVIDENCE,
+             "s4e15_amd": amd_demonstration()},
         )
 
     @app.get("/cases/{case_id}", response_class=HTMLResponse)
@@ -311,9 +317,13 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
             "evidence.html",
             {
                 "amd": AMD_EVIDENCE,
+                "s4e15_amd": amd_demonstration(),
                 "evolus": EVOLUS_EVIDENCE,
                 "b51_observed": B5_1_OBSERVED_OFFLINE,
                 "b51": B5_1_COUNTERFACTUAL,
+                "gemma": gemma_demonstration(),
+                "gemma_history": GEMMA_HISTORY,
+                "gemma_source_note": GEMMA_SOURCE_CONSISTENCY_NOTE,
             },
         )
 
@@ -322,7 +332,12 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
         return templates.TemplateResponse(
             request,
             "experiment.html",
-            {"amd": AMD_EVIDENCE, "gemma": GEMMA_EVIDENCE, "historical": load_public_experiment()},
+            {"amd": AMD_EVIDENCE,
+             "s4e15_amd": amd_demonstration(),
+             "gemma": gemma_demonstration(),
+             "gemma_history": GEMMA_HISTORY,
+             "gemma_source_note": GEMMA_SOURCE_CONSISTENCY_NOTE,
+             "historical": load_public_experiment()},
         )
 
     # --- S4E.16 batch workflow (operational + comparison views) ------------------------

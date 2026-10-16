@@ -49,18 +49,9 @@ EVOLUS_EVIDENCE = {
     ),
 }
 
-# --- Google Gemma — S4E.7 single smoke attempt, recorded October 13 ------------------
-
-GEMMA_EVIDENCE = {
-    "provenance": "RECORDED LIVE TEST (single attempt)",
-    "status": "INCOMPLETE",
-    "model_id": "Gemma-4-31B-IT",
-    "outcome": "MALFORMED_RESPONSE",
-    "note": (
-        "Gemma-4-31B-IT was tested once through AMD Token Factory; the response failed "
-        "structured-output parsing. The full two-model comparison has not been performed."
-    ),
-}
+# --- Google Gemma — derived from hash-verified S4E.15 records -------------------------
+# Gemma evidence is derived at request time from the hash-verified S4E.15 records via
+# ``public_experiment.gemma_demonstration()`` (no duplicate hardcoded metrics here).
 
 # --- Offline B5.1 benchmark — OBSERVED_OFFLINE and COUNTERFACTUAL --------------------
 

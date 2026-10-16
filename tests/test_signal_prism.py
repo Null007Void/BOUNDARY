@@ -124,7 +124,7 @@ def test_homepage_hero_metrics_present(tmp_path):
     r = client.get("/")
     assert r.status_code == 200
     assert "66.7%" in r.text
-    assert "64.0%" in r.text
+    assert "65.5%" in r.text
     assert "AI-granted execution authority" in r.text
     assert "NONE" in r.text
 
@@ -134,9 +134,11 @@ def test_homepage_hero_principle_and_caveat(tmp_path):
     r = client.get("/")
     assert "Use intelligence only when intelligence is required" in r.text
     assert "Use autonomy only when authority exists" in r.text
-    # Figures are labeled as a limited pilot, not universal or the 60-case study.
-    assert "S4E.5 DeepSeek synthetic pilot" in r.text
-    assert "60-case" in r.text
+    # Homepage leads with the S4E.15 two-model comparison, labeled a small sample.
+    assert "S4E.15 two-model AMD comparison" in r.text
+    assert "sixteen genuine requests" in r.text
+    assert "not a universal claim" in r.text
+    assert "S4E.5" in r.text  # earlier DeepSeek-only pilot still referenced
     assert 'href="/evidence"' in r.text
 
 
@@ -166,9 +168,11 @@ def test_homepage_hero_accessible(tmp_path):
 
 
 def test_homepage_metrics_derive_from_evidence():
-    from boundary.evidence import AMD_EVIDENCE
-    assert AMD_EVIDENCE["request_reduction"] == "66.7%"
-    assert AMD_EVIDENCE["token_reduction"] == "64.0%"
+    # Homepage metrics now derive from the hash-verified S4E.15 loader, not a hardcoded source.
+    from boundary.public_experiment import amd_demonstration
+    a = amd_demonstration()
+    assert a["request_reduction_percent"] == 66.7
+    assert a["token_reduction_percent"] == 65.5
 
 
 def test_zero_call_indicator_on_deterministic_and_held(tmp_path):
@@ -265,7 +269,8 @@ def test_experiment_provenance_limitations(tmp_path):
     assert "unverified" in t.lower()
     assert "Gemma later unavailable" in t
 
-    assert "The full 60-case live experiment was not completed" in t
+    assert "sixteen genuine AMD requests" in t
+    assert "six synthetic development cases per model" in t
     assert "Financial approval is simulated" in t
     assert "Execution authority" in t
 
