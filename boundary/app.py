@@ -37,6 +37,7 @@ from .public_experiment import (
     GEMMA_SOURCE_CONSISTENCY_NOTE,
     amd_demonstration,
     gemma_demonstration,
+    gemma_completion_demonstration,
     load_public_experiment,
 )
 from .guard import evaluate
@@ -329,6 +330,7 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
                 "b51_observed": B5_1_OBSERVED_OFFLINE,
                 "b51": B5_1_COUNTERFACTUAL,
                 "gemma": gemma_demonstration(),
+                "gemma_completion": gemma_completion_demonstration(),
                 "gemma_history": GEMMA_HISTORY,
                 "gemma_source_note": GEMMA_SOURCE_CONSISTENCY_NOTE,
             },
@@ -342,6 +344,7 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
             {"amd": AMD_EVIDENCE,
              "s4e15_amd": amd_demonstration(),
              "gemma": gemma_demonstration(),
+             "gemma_completion": gemma_completion_demonstration(),
              "gemma_history": GEMMA_HISTORY,
              "gemma_source_note": GEMMA_SOURCE_CONSISTENCY_NOTE,
              "historical": load_public_experiment()},

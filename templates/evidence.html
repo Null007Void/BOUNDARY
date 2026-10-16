@@ -89,6 +89,27 @@
     </section>
 
     <section>
+      <h2>Gemma integration completion <span class="status-label status-label--demonstrated">{{ gemma_completion.status }}</span></h2>
+      <p class="muted">Separate post-restoration completion experiment ({{ gemma_completion.experiment_id }}). Recorded {{ gemma_completion.provenance }} &mdash; <strong>NOT RE-RUN BY THIS PAGE.</strong></p>
+      <dl class="facts">
+        <div><dt>Evolus multipart extraction</dt><dd>{{ gemma_completion.evolus_extraction.outcome }}</dd></div>
+        <div><dt>Same validated packet</dt><dd class="mono">{{ gemma_completion.evolus_extraction.packet_hash }}</dd></div>
+        <div><dt>Invoice</dt><dd class="mono">{{ gemma_completion.invoice.invoice_id }}</dd></div>
+        <div><dt>Verified discrepancy</dt><dd class="mono">{{ gemma_completion.discrepancy_dollars }}</dd></div>
+        <div><dt>Direct Gemma requests</dt><dd>{{ gemma_completion.direct_gemma_requests }} (no retries)</dd></div>
+        <div><dt>Direct DeepSeek requests</dt><dd>{{ gemma_completion.direct_deepseek_requests }}</dd></div>
+        <div><dt>Authority</dt><dd class="mono">{{ gemma_completion.authority }}</dd></div>
+      </dl>
+      {% for p in gemma_completion.paths %}
+      <p><strong>{{ p.strategy }}</strong> &middot; {{ p.outcome }} &middot; {{ p.source_consistency }}
+         &middot; {{ p.total_tokens }} tokens &middot; {{ p.elapsed_ms }} ms
+         &middot; normalization {{ "applied" if p.normalized else "off" }}
+         &middot; identity {{ p.model_verified }}</p>
+      {% endfor %}
+      <p class="muted">{{ gemma_completion.internal_agent_note }}</p>
+    </section>
+
+    <section>
       <h2>Evolus Document Extraction <span class="status-label status-label--demonstrated">{{ evolus.status }}</span></h2>
       <p class="muted">Recorded {{ evolus.recorded_at }}. <strong>RECORDED LIVE TEST &mdash; NOT RE-RUN BY THIS PAGE.</strong></p>
       <dl class="facts">

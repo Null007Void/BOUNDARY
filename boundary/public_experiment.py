@@ -15,6 +15,8 @@ _EXPECTED_SHA256 = {
         "5b0fbf3ef92590630f2c2eb5719030aa6c0e001c9d4359a05c6b99339b449972",
     "integrated_trial_summary.json":
         "c8ebe578ef1e406ea15fc89ae216faee5fe6cc45039ae7cb25c72c87b8a7fbc4",
+    "gemma_completion_evidence.json":
+        "51ab09d894b0bc4c287c95a0593bcf1e049e0e9aaf43cfbe283a3b1a87b2a7aa",
 }
 
 def _read_pinned_json(filename: str) -> dict:
@@ -125,6 +127,52 @@ def gemma_demonstration() -> dict:
     }
 
 
+def gemma_completion_demonstration() -> dict:
+    """Derive the October 16 Evolus->Gemma completion from its hash-verified record."""
+    record = _read_pinned_json("gemma_completion_evidence.json")
+    if (record.get("experiment_id") != "gemma-completion-20261016"
+            or len(record.get("paths", [])) != 2
+            or record.get("direct_deepseek_requests") != 0
+            or record.get("direct_gemma_requests") != 2):
+        raise ValueError("Gemma completion contract invalid")
+    paths = []
+    for p in record["paths"]:
+        if (p.get("model_id") != "Gemma-4-31B-IT"
+                or p.get("execution_authority") != "NONE"
+                or p.get("advisory_consistent") is not True
+                or p.get("discrepancy_cents") != 28177):
+            raise ValueError("Gemma completion path invalid")
+        paths.append({
+            "strategy": p["strategy"],
+            "outcome": p["outcome"],
+            "source_consistency": (
+                "source_consistent" if p["advisory_consistent"] else "source_inconsistent"),
+            "total_tokens": p["total_tokens"],
+            "elapsed_ms": p["elapsed_ms"],
+            "normalized": p["normalized"],
+            "route": p["route"],
+            "route_correct": p["route_correct"],
+            "endpoint_model_id": p["endpoint_model_id"],
+            "model_verified": p["model_verified"],
+            "execution_authority": p["execution_authority"],
+        })
+    return {
+        "status": "COMPLETED — RECORDED LIVE",
+        "provenance": "RECORDED LIVE TEST",
+        "experiment_id": record["experiment_id"],
+        "invoice": record["invoice"],
+        "discrepancy_dollars": (
+            f"${record['invoice']['discrepancy_cents'] // 100}."
+            f"{record['invoice']['discrepancy_cents'] % 100:02d}"),
+        "evolus_extraction": record["evolus_extraction"],
+        "paths": paths,
+        "direct_gemma_requests": record["direct_gemma_requests"],
+        "direct_deepseek_requests": record["direct_deepseek_requests"],
+        "internal_agent_note": record["internal_agent_note"],
+        "authority": "NONE",
+    }
+
+
 # Transparency disclosure: the actual Gemma history, in order.
 GEMMA_HISTORY = [
     "The first October 13, 2026 Gemma smoke attempt produced code-fenced JSON that "
@@ -134,8 +182,15 @@ GEMMA_HISTORY = [
     "Later, Gemma disappeared from the authenticated AMD Token Factory model catalog, "
     "preventing additional requests. This is an observed availability limitation — not a "
     "claim that AMD permanently discontinued Gemma.",
-    "The separate Evolus-to-AMD integrated trial remains incomplete: DeepSeek succeeded on "
-    "two paths, Gemma LLM-first became unavailable, and Gemma BOUNDARY was not dispatched.",
+    "AMD later restored Gemma to the authenticated catalog (owner-confirmed, 2026-10-16). "
+    "A single post-restoration request then succeeded with a source-consistent interpretation "
+    "of the INV-500 discrepancy. The restored model again returned code-fenced JSON, "
+    "confirming the normalization correction remains necessary.",
+    "The original Evolus-to-AMD integrated trial was interrupted by Gemma's outage: DeepSeek "
+    "completed its two paths while Gemma was unavailable. A separate October 16 completion "
+    "experiment then ran the Gemma LLM-first and BOUNDARY paths through the same Evolus "
+    "document extraction: both succeeded and were source-consistent (the $281.77 discrepancy), "
+    "with code-fence normalization applied and execution authority NONE.",
     "The exact underlying serving-model identity has not been independently verified "
     "(the endpoint reported \"self-dploy/Gemma-4-31B-IT\", classified \"unverified_mismatch\").",
 ]

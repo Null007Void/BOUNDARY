@@ -137,11 +137,27 @@
           <tr><th>Execution authority</th><td>{{ integrated.execution_authority }}</td></tr>
         </tbody>
       </table>
-      <p class="muted">The Gemma leg of this integrated run was interrupted when Gemma
+      <p class="muted">The ORIGINAL S4E.17 integrated run was interrupted when Gemma
       became unavailable from the authenticated AMD Token Factory catalog. This is a
       later catalog change, not a failure of the earlier eight successful S4E.15 Gemma
-      requests, which remain separately preserved above. The integrated four-path
+      requests, which remain separately preserved above. The original four-path
       execution is therefore partial.</p>
+
+      <h3>Gemma integration completion <span class="status-label status-label--demonstrated">{{ gemma_completion.status }}</span></h3>
+      <p class="muted">A separate post-restoration completion experiment ({{ gemma_completion.experiment_id }})
+      ran both Gemma paths through the same validated Evolus extraction.</p>
+      <table class="data-table">
+        <tbody>
+          <tr><th>Evolus multipart extraction</th><td>{{ gemma_completion.evolus_extraction.outcome }}</td></tr>
+          {% for p in gemma_completion.paths %}
+          <tr><th>Gemma {{ p.strategy }}</th><td>{{ p.outcome }} &middot; {{ p.source_consistency }} &middot; {{ p.total_tokens }} tokens &middot; {{ p.elapsed_ms }} ms</td></tr>
+          {% endfor %}
+          <tr><th>Verified discrepancy</th><td>{{ gemma_completion.discrepancy_dollars }}</td></tr>
+          <tr><th>Direct Gemma requests</th><td>{{ gemma_completion.direct_gemma_requests }} (no retries)</td></tr>
+          <tr><th>Execution authority</th><td>{{ gemma_completion.authority }}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">{{ gemma_completion.internal_agent_note }}</p>
     </section>
 
     <section>
@@ -171,7 +187,9 @@
         <li>Eight zero-call comparison cells were schedule-derived.</li>
         <li>Three absent-PO convention differences remain disclosed.</li>
         <li>S4E.17: genuine integrated extraction and DeepSeek inference;
-            Gemma later unavailable, complete four-path run not achieved.</li>
+            Gemma later unavailable, original four-path run partial.</li>
+        <li>October 16 completion experiment: both Gemma paths (LLM-first and BOUNDARY)
+            succeeded through the same Evolus extraction — a separate record from S4E.15.</li>
         <li>Model serving identifiers remain independently unverified.</li>
         <li>S4E.15: sixteen genuine AMD requests across six synthetic development cases per model (one repetition).</li>
         <li>Financial approval is simulated; no authenticated human

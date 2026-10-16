@@ -117,9 +117,36 @@ def test_gemma_limitation_present(tmp_path):
     t = client.get("/evidence").text
     assert "Gemma-4-31B-IT" in t
     assert "structured-output parsing" in t
-    # The integrated Gemma evaluation remains explicitly incomplete and availability-limited.
-    assert "not dispatched" in t
+    # The original integrated trial was interrupted by Gemma's outage; a separate completion
+    # experiment then completed both Gemma paths through the same Evolus extraction.
+    assert "unavailable" in t
+    assert "completion experiment" in t
     assert "catalog" in t
+    # The October 16 completion section is prominently shown, not only in the history list.
+    assert "Gemma integration completion" in t
+    assert "$281.77" in t
+
+
+def test_gemma_completion_demonstration_contract():
+    from boundary.public_experiment import gemma_completion_demonstration
+    gc = gemma_completion_demonstration()
+    assert gc["status"] == "COMPLETED — RECORDED LIVE"
+    assert gc["experiment_id"] == "gemma-completion-20261016"
+    assert gc["discrepancy_dollars"] == "$281.77"
+    assert gc["direct_gemma_requests"] == 2
+    assert gc["direct_deepseek_requests"] == 0
+    assert gc["authority"] == "NONE"
+    assert gc["evolus_extraction"]["outcome"] == "SUCCESS"
+    assert gc["evolus_extraction"]["packet_valid"] is True
+    assert len(gc["paths"]) == 2
+    assert {p["strategy"] for p in gc["paths"]} == {"LLM_FIRST", "BOUNDARY"}
+    for p in gc["paths"]:
+        assert p["outcome"] == "SUCCESS"
+        assert p["source_consistency"] == "source_consistent"
+        assert p["total_tokens"] == 315
+        assert p["execution_authority"] == "NONE"
+        assert p["model_verified"] == "unverified_mismatch"
+        assert p["normalized"] is True
 
 
 def test_amd_evidence_s4e5_structure():

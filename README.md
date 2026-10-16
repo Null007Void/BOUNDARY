@@ -76,8 +76,12 @@ extraction, and requires no credentials.
   batch and four-path (model × strategy) comparison. Model/strategy paths use offline
   simulated adapters; their decision-call counts are **not** live AMD API requests.
 - **`/experiment`** and **`/evidence`** — the recorded evidence: the S4E.15 two-model AMD
-  comparison (16 genuine requests), the S4E.10 offline 720-observation benchmark, and the
-  separate S4E.5 DeepSeek pilot and S4E.17 integrated Evolus-to-AMD trial.
+  comparison (16 genuine requests across DeepSeek and Google Gemma), the S4E.10 offline
+  720-observation benchmark, the separate S4E.5 DeepSeek pilot, the S4E.17 integrated
+  Evolus-to-AMD trial, and the **October 16 Gemma integration completion** — a separate
+  post-restoration experiment in which both Gemma paths (LLM-first and BOUNDARY) succeeded
+  through the same validated Evolus extraction. See the **Gemma integration completion**
+  section on `/evidence` and `/experiment`.
 
 The AMD and Evolus results shown on **Evidence & Performance** (`/evidence`) and
 **Experiment** (`/experiment`) are **separately recorded live integration tests**, clearly

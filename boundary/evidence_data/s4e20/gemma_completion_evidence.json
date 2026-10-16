@@ -1,0 +1,58 @@
+{
+  "experiment_id": "gemma-completion-20261016",
+  "provenance": "OBSERVED_LIVE",
+  "is_historical_record": true,
+  "makes_no_provider_calls": true,
+  "invoice": {
+    "invoice_id": "INV-500",
+    "supplier_id": "SUP-500",
+    "po_reference": "PO-500",
+    "stated_total_cents": 272900,
+    "trusted_po_total_cents": 244723,
+    "discrepancy_cents": 28177
+  },
+  "evolus_extraction": {
+    "outcome": "SUCCESS",
+    "packet_valid": true,
+    "packet_hash": "7ba9bf9a3f7fec4c26ea828f401005cbf656ff0d7779057037fa1f5d860c8aa2"
+  },
+  "paths": [
+    {
+      "model_id": "Gemma-4-31B-IT",
+      "strategy": "LLM_FIRST",
+      "outcome": "SUCCESS",
+      "advisory_consistent": true,
+      "discrepancy_cents": 28177,
+      "prompt_tokens": 186,
+      "completion_tokens": 129,
+      "total_tokens": 315,
+      "elapsed_ms": 3891,
+      "route": null,
+      "route_correct": null,
+      "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+      "model_verified": "unverified_mismatch",
+      "normalized": true,
+      "execution_authority": "NONE"
+    },
+    {
+      "model_id": "Gemma-4-31B-IT",
+      "strategy": "BOUNDARY",
+      "outcome": "SUCCESS",
+      "advisory_consistent": true,
+      "discrepancy_cents": 28177,
+      "prompt_tokens": 186,
+      "completion_tokens": 129,
+      "total_tokens": 315,
+      "elapsed_ms": 3516,
+      "route": "INFERENCE",
+      "route_correct": true,
+      "endpoint_model_id": "self-dploy/Gemma-4-31B-IT",
+      "model_verified": "unverified_mismatch",
+      "normalized": true,
+      "execution_authority": "NONE"
+    }
+  ],
+  "direct_gemma_requests": 2,
+  "direct_deepseek_requests": 0,
+  "internal_agent_note": "The Evolus workflow's internal advisory agent activity is platform-internal and unverified, distinct from the two direct Gemma requests recorded here."
+}
