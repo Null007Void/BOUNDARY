@@ -45,6 +45,13 @@ from .ledger import ActionJournal
 from .routing_demo import authority_claim_rejection, routing_for_case
 from .verifier import verify
 from .batch import MODELS, STRATEGIES, run_batch_durable
+from .live_demo import (
+    LiveDemoBusy,
+    LiveDemoDisabled,
+    authenticate,
+    is_enabled,
+    run_live_demo,
+)
 
 DEFAULT_DB_PATH = "boundary.db"
 
@@ -550,6 +557,24 @@ def create_app(db_path: str = DEFAULT_DB_PATH) -> FastAPI:
             "scenarios": SCENARIO_PREFILL, "active_scenario": "",
             "values": values, "error": None, "result": result,
         })
+
+    # --- Phase B: protected live AMD demo (disabled by default) ----------------------
+    # Operator-gated, single-flight, one-request. When disabled or unconfigured the route
+    # is non-operational (404). Never exposed to anonymous visitors.
+
+    @app.post("/live-demo")
+    def live_demo_endpoint(request: Request):
+        if not is_enabled():
+            raise HTTPException(status_code=404, detail="not found")
+        token = request.headers.get("x-boundary-operator-token", "")
+        if not authenticate(token):
+            raise HTTPException(status_code=401, detail="unauthorized")
+        try:
+            return run_live_demo()
+        except LiveDemoDisabled as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except LiveDemoBusy as exc:
+            raise HTTPException(status_code=429, detail=str(exc)) from exc
 
     return app
 
